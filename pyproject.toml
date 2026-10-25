@@ -5,7 +5,10 @@ description = "Prototype legal-reasoning tools: Perimeter and Downstream."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "pydantic>=2.14.1",
+    "pyyaml>=6.0.3",
+]
 
 [build-system]
 requires = ["uv_build>=0.13.5,<0.14"]
@@ -20,6 +23,9 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+pythonpath = ["scripts"]
 
 [dependency-groups]
 dev = [

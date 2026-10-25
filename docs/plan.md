@@ -5,7 +5,7 @@
 | ID | Milestone (one sitting) | Hours | Done when | Status |
 |---|---|---|---|---|
 | A1 | Environment and repo: uv, Python 3.12 pinned, pytest, ruff (lint and format), pre-commit, GitHub Actions CI. Public repo with MIT licence, DISCLAIMER.md and a README banner. CLAUDE.md carrying the guardrails. .env with the API key, .gitignore, and a monthly spend limit set in the Anthropic Console. | 3 | A fresh clone runs uv sync && uv run pytest green with one smoke test; ruff is clean; CI is green; git ls-files shows no .env. | Done (.env with the API key and the monthly spend limit deferred to C7a) |
-| A2 | Source library: one record per primary source (URL, retrieval date, SHA-256 of the retrieved text, and the text itself where it is public domain). A script flags records older than 90 days. | 2 | Every Verified row in section 8 has a record; the staleness script runs in CI. | |
+| A2 | Source library: one record per primary source (URL, retrieval date, SHA-256 of the retrieved text, and the text itself where it is public domain). A script flags records older than 90 days. | 2 | Every Verified row in section 8 has a record; the staleness script runs in CI. | Done |
 
 ## Phase B: Downstream brief (weeks 1-2, about 11.5 hours; wins if time is tight)
 

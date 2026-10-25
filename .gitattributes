@@ -1,0 +1,2 @@
+# Stored source texts are hashed byte for byte: git must never alter them.
+sources/text/** binary
