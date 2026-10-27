@@ -13,3 +13,6 @@ htmlcov/
 # Local secrets and notes
 .env
 CLAUDE.local.md
+
+# macOS
+.DS_Store
