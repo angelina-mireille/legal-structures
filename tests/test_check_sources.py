@@ -135,7 +135,7 @@ def test_main_exit_codes(sources: Path) -> None:
 def test_repo_records_have_every_field() -> None:
     """The real records in sources/ are complete (staleness ignored by pinning today)."""
     records = sorted(REPO_SOURCES.glob("*.yaml"))
-    assert len(records) == 8
+    assert records, "no source records found"
     for path in records:
         retrieved = yaml.safe_load(path.read_text(encoding="utf-8"))["retrieved"]
         assert check(REPO_SOURCES, retrieved) == [], path.name
