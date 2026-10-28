@@ -7,6 +7,12 @@ wrapped lines rejoined with one space (no space after a line ending in a dash),
 and page footers left out where marked. Multi-line quotes keep one source
 line per line. "[...]" marks lines skipped inside one item.
 
+The EU guidelines PDFs are hash-only (not stored): their quotes were copied by
+script from the local downloads after each file's SHA-256 matched its record,
+with the same normalization and one sentence at most per entry. Superscript
+exponents are written as 10^23 and 10^25. Paragraph numbers were assigned by
+counting paragraph blocks, as the PDF's margin numbers extract out of place.
+
 "For" names rows in section 8 of the plan doc (not the milestone IDs in
 docs/plan.md).
 
@@ -279,3 +285,83 @@ docs/plan.md).
 | Removal, (d) vs (g) | (d) | (g) | Changed (scope). Text: (g) reaches anything "this clause prohibits"; same for FASCSA items. |
 | Flow-down, (e)(1) vs (j) | (e)(1) | (j) | Changed. Text: exclusions move from (c)(1) to (d)(1) and (i)(1). |
 | Subcontractor notice of orders not in SAM, (e)(2) vs none | (e)(2) | none | Changed (removed). Text: no notification duty in 52.240-91; (e)(3) only lets the Government list such orders. |
+
+## EU guidelines (hash only, short quotes)
+
+### Guidelines, cover: date and C-number
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "Brussels, 19.11.2025
+  C(2025) 7719 final"
+- For: D8
+
+### Communication, cover: date and C-number
+- Source: ec-gpai-guidelines-communication (retrieved 2026-10-27)
+- Text: "Brussels, 18.7.2025
+  C(2025) 5045 final"
+- For: D8
+
+### Communication, last paragraph, first sentence
+- Source: ec-gpai-guidelines-communication (retrieved 2026-10-27)
+- Text: "The Guidelines will be formally adopted by the Commission at a later date, when all language versions are available."
+- For: D8
+
+### Guidelines para 9, first sentence
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "These guidelines are not binding for providers of general-purpose AI models; an authoritative interpretation of the AI Act may only be given by the Court of Justice of the European Union (‘CJEU’)."
+- For: D7; brief section 6
+
+### Guidelines para 59
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "Instead, the Commission considers a downstream modifier to become the provider of the modified general-purpose AI model only if the modification leads to a significant change in the model’s generality, capabilities, or systemic risk."
+- For: D7; brief section 6
+
+### Guidelines para 60
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "Based on the considerations above, an indicative criterion for when a downstream modifier is considered to be the provider of a general-purpose AI model is that the training compute used for the modification is greater than a third of the training compute of the original model (see paragraph 115 for how ‘training compute’ should be understood in these guidelines)."
+- For: D7; brief section 6
+
+### Guidelines para 61, condition
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "However, if the downstream modifier cannot be expected to know this value (for example because it has not been communicated by the provider of the original model) and cannot estimate it (see Sections A.1 and A.2 of the Annex to these guidelines for how to estimate training compute) then the threshold should be replaced as follows."
+- For: D7; brief section 6
+
+### Guidelines para 61, first replacement
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "If the original model is a general-purpose AI model with systemic risk, the threshold should be replaced with a third of the threshold for a model being presumed to have high-impact capabilities (i.e. currently 10^25 FLOP, see Article 51(2) AI Act)."
+- For: D7; brief section 6
+
+### Guidelines para 61, second replacement
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "Otherwise, it should be replaced with a third of the threshold that is part of the indicative criterion for a model to be considered a general-purpose AI model (i.e. currently 10^23 FLOP, see Section 2.1)."
+- For: D7; brief section 6
+
+### Guidelines para 64, first clause
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "While currently few modifications may meet the criterion set out in paragraph 60, [...]"
+- For: D7; brief section 6
+
+### Guidelines para 65, "That is" sentence, first clause
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "That is, the documentation required by Article 53(1), points (a) and (b), AI Act is limited to information on the modification, [...]"
+- For: D7; brief section 6
+
+### Guidelines para 67, first sentence
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "If a downstream actor modifies a general-purpose AI model with systemic risk in such a way that they become the provider of the modified general-purpose AI model, then the resulting model is presumed to have high-impact capabilities."
+- For: D7; brief section 6; design decision (EU label)
+
+### Guidelines para 68, first sentence
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "In this case, the downstream modifier must comply with the obligations for providers of general-purpose AI models with systemic risk."
+- For: D7; brief section 6
+
+### Guidelines footnote 13, second sentence
+- Source: ec-gpai-guidelines-en (retrieved 2026-10-27)
+- Text: "An important factor in this assessment may be who has the control over the model’s weights, for example, in case of fine-tuning via API."
+- For: Downstream design note
+
+Design decision (27 Oct 2026): the EU output label is renamed from
+'presumptively provider' to 'indicative criterion met (para 60)'.
+Reason: para 60 calls the one-third test an indicative criterion;
+para 59 makes significant change the test; 'presumed' appears only in
+para 67, about high-impact capabilities.
