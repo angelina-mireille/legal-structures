@@ -14,7 +14,7 @@
 | B1 | Close the open sources: official text of the Commission guidelines (paragraph numbers), FAR 2.101, the Defense and Intelligence orders on SAM.gov. | 3 | Rows D4, D6, D7 and D8 in section 8 are Verified or the text is rewritten without them. | |
 | B2 | Draft (about 1,000 words plus closing paragraph) and finalise the lineage-tree visual. | 5 | Fits two pages; every factual sentence has a source; no conclusion on which reading is right. | |
 | B3 | Second-reader review and revisions. | 2, plus waiting | The reader marks both readings as fairly put. | |
-| B4 | Publish as a doc and PDF, with a short post linking it. | 1.5 | Public, dated, and linked from the repo README. | |
+| B4 | Publish as a doc and PDF, with a short post linking it. | 1.5 | Public, dated, and linked from the repo README. Just before publishing, re-check FAR Case 2026-001 (proposed rule, 91 FR 37550, 23 June 2026) and the agency deviations in section 8 rows D11-D12 of the plan doc. | |
 
 ## Phase C: shared core (weeks 3-7, about 33.5 hours)
 
