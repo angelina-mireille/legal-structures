@@ -365,3 +365,164 @@ Design decision (27 Oct 2026): the EU output label is renamed from
 Reason: para 60 calls the one-third test an indicative criterion;
 para 59 makes significant change the test; 'presumed' appears only in
 para 67, about high-impact capabilities.
+
+## DHS order (fr-2026-21447)
+
+The stored PDF (SHA-256 checked against its record first) has a text layer
+only on PDF page 1, the notice. The signed order (PDF pages 2-5) is scanned
+images. Two capture methods, named in each entry:
+- "Capture: text layer": copied by script from the PDF's text (Apple PDFKit),
+  with the normalization above.
+- "Capture: OCR (Apple Vision), checked against page image by AH, <date>":
+  OCR transcription, each quote compared with a crop of the page image and
+  corrected by AH before entry. See docs/decisions.md (2026-10-29).
+
+Page gives the PDF page and the Federal Register page; each FR page number
+was read from the printed page header. Footnote markers (superscripts in the
+source) are written [fn N]. A footnote's own number is left out of its text.
+Bold and italics are not kept in the text; each entry's Note records them.
+
+### Notice, SUMMARY sentence
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.1 / 91 FR 66346
+- Capture: text layer
+- Text: "The Department of Homeland Security is publishing notice of the Secretary of Homeland Security’s issuance of an order (1) excluding information technology products and services developed by Hangzhou DeepSeek Artificial Intelligence Co., Ltd (DeepSeek), to include affiliated entities as defined in applicable regulations, from federal civilian agency procurements; and, (2) removing all DeepSeek and DeepSeek-affiliate products, and third-party products and services developed using DeepSeek implementations, from civilian agency information technology."
+- For: brief section 2
+
+### Notice, company name
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.1 / 91 FR 66346
+- Capture: text layer
+- Text: "Hangzhou DeepSeek Artificial Intelligence Co., Ltd (DeepSeek)"
+- Note: same wording in SUMMARY and in SUPPLEMENTARY INFORMATION; no full stop after "Ltd" in either (checked against the page image). Compare the order's name below.
+- For: brief section 2
+
+### Notice, docket number
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.1 / 91 FR 66346
+- Capture: text layer
+- Text: "[Docket No. DHS–2026–0628]"
+- For: brief section 2
+
+### Notice, publication date (page header)
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.1 / 91 FR 66346
+- Capture: text layer
+- Text: "66346 Federal Register / Vol. 91, No. 201 / Tuesday, October 20, 2026 / Notices"
+- For: brief section 2
+
+### Notice, FR document number and filed date
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.5 / 91 FR 66350
+- Capture: text layer
+- Text: "[FR Doc. 2026–21447 Filed 10–19–26; 8:45 am]"
+- Note: printed after the order, on p.5. The FR Doc line on p.1 (2026–21429) belongs to the preceding notice.
+- For: brief section 2
+
+### Order, number and Original Release Date
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.2 / 91 FR 66347
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "Exclusion and Removal Order #2026-01
+  Original Release Date: July 24, 2026"
+- For: brief section 2
+
+### Order, Applies To
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.2 / 91 FR 66347
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "Applies To: Federal Civilian Executive Branch Agencies except for their national security systems and secure compartmented information systems"
+- For: brief section 2
+
+### Order, signature block
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.2 / 91 FR 66347
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "FROM: Markwayne Mullin
+  Secretary, Department of Homeland Security
+  CC: Russell Vought
+  Director, Office of Management and Budget"
+- Note: no date is printed in the block. The CC line is record only (not planned for the brief).
+- For: brief section 2
+
+### Order, company name (Summary of Risks from Source)
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.2 / 91 FR 66347
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "Hangzhou DeepSeek Artificial Intelligence Basic Technology Research Co., Ltd. (hereinafter DeepSeek)"
+- Note: differs from the notice's name ("Basic Technology Research"; full stop after "Ltd"). Footnotes 9 and 12 say "DeepSeek AG".
+- For: brief section 2
+
+### Order, Summary of Risks, risk sentences 1-7
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.2-3 / 91 FR 66347-66348 (sentence 1 on p.2; sentence 2 runs across the page break; 3-7 on p.3)
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "DeepSeek's models present multiple threat vectors.
+  DeepSeek servers are located in the PRC,[fn 3] and the PRC legal system permits extensive authority to government cyber and intelligence functions to access private company infrastructure.[fn 4]
+  For DeepSeek-hosted instances of their models, DeepSeek's account generation process collects personally identifiable information (PII) and may also track and digitally fingerprint users.[fn 5]
+  DeepSeek's most widely used applications function through a prompt-and-response process that requires presenting information to the model, and which may result in the transfer of sensitive data to the PRC if used by U.S. government employees or vendors.[fn 6]
+  The transfer of the aforementioned information to the PRC, either independently or in combination with publicly available data, could produce actionable intelligence on U.S. persons and/or government programs.
+  The models themselves may contain malware or other security vulnerabilities.
+  Indeed, open-source security research has found that the DeepSeek iOS mobile application contains multiple critical vulnerabilities.[fn 7]"
+- Note: one sentence per line; in the source they run on as one paragraph.
+- For: brief section 3
+
+### Order, Scope paragraph
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.3 / 91 FR 66348
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "This Exclusion and Removal Order direct Federal civilian agencies[fn 8] to: (1) exclude DeepSeek, DeepSeek-affiliated entities[fn 9], and their products from civilian agency procurements,[fn 10] and (2) remove products provided by DeepSeek and DeepSeek entities, and third-party products and services developed using DeepSeek implementations, from civilian agency information technology systems.[fn 11]"
+- Note: "exclude" and "remove" are bold in the source. "direct" is as printed.
+- For: brief sections 2, 3, 4
+
+### Order, footnote 9
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.3 / 91 FR 66348
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "For purposes of this Order, an individual or business is an "affiliated entity" or "affiliate" of DeepSeek AG if, directly or indirectly, either one controls or can control the other; or a third party controls or can control both. See 48 C.F.R. § 2.101 (definition of "affiliates")."
+- Attached to: "DeepSeek-affiliated entities" in the Scope paragraph (marker before the comma)
+- Note: "See" is italic in the source. Compare footnote 12.
+- For: brief section 2
+
+### Order, footnote 10
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.3 / 91 FR 66348
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "To include third party implementations of DeepSeek used to provide products and services civilian agencies."
+- Attached to: "procurements," in the Scope paragraph (marker after the comma)
+- Note: no "to" before "civilian agencies"; a typo in the source, checked by AH. Footnote 13 has "to".
+- For: brief sections 2, 3
+
+### Order, Required Actions 1-2
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.4 / 91 FR 66349
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "1. Exclude DeepSeek, DeepSeek-affiliated entities,[fn 12] and their products from civilian agency procurements,[fn 13] effective immediately after issuance of this Order, to include agency-approved products lists, service provider equipment lists, e-commerce markets, and other similar functions that facilitate the procurement of information technology hardware, software, and services.
+  2. Remove products provided by DeepSeek, DeepSeek-affiliated entities, and third-party products and services developed using DeepSeek implementations, from civilian agency information technology systems[fn 14] immediately after the issuance of the Order, or seek an Exception, as described below."
+- Note: "Exclude" and "Remove products provided by" are bold in the source.
+- For: brief sections 2, 3, 4, 7
+
+### Order, footnote 12
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.4 / 91 FR 66349
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "For purposes of this Order, an individual or business is an "affiliated entity" or "affiliate" of DeepSeek AG if, directly or indirectly, either one controls or can control the other; or a third party controls or can control both. See 48 C.F.R. § 2.101 (definition of "affiliates")."
+- Attached to: "DeepSeek-affiliated entities," in Required Action 1 (marker after the comma)
+- Note: "See" is italic in the source. Same words as footnote 9.
+- For: brief section 2
+
+### Order, footnote 13
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.4 / 91 FR 66349
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "To include third party implementations of DeepSeek used to provide products and services to civilian agencies."
+- Attached to: "procurements," in Required Action 1 (marker after the comma)
+- For: brief sections 2, 3
+
+### Order, Exceptions, 60-day sentence
+- Source: fr-2026-21447 (retrieved 2026-10-25)
+- Page: PDF p.4 / 91 FR 66349
+- Capture: OCR (Apple Vision), checked against page image by AH, 2026-10-29
+- Text: "Executive agency requests for exceptions must be submitted in writing within 60 days of the issuance of this order and include all necessary information for the issuing official to review and evaluate it, including:"
+- Note: "submitted in writing within 60 days" is bold in the source. The numbered list that follows is not extracted.
+- For: brief sections 2, 7

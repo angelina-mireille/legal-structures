@@ -17,3 +17,6 @@ FIN-2019-G001 is recorded at the final `/system/files/` URL that served the hash
 
 ## 2026-10-27 (B1): EU output label renamed to "indicative criterion met (para 60)"
 The EU output label is renamed from 'presumptively provider' to 'indicative criterion met (para 60)'. Reason: para 60 of the Commission GPAI guidelines calls the one-third test an indicative criterion; para 59 makes significant change the test; 'presumed' appears only in para 67, about high-impact capabilities.
+
+## 2026-10-29 (B2): OCR for scanned pages of fr-2026-21447
+Quotes from scanned pages of fr-2026-21447 are OCR transcriptions, each checked against the page image by me and marked as such.
