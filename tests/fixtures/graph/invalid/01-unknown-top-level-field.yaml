@@ -1,0 +1,8 @@
+schema_version: 1
+graph_id: invalid-01
+notes: an unknown top-level field
+nodes:
+  - id: model-1
+    kind: model
+    evidence: {grade: declared, source_ref: model-card-1, recorded_by: user, recorded_on: 2026-11-01}
+edges: []

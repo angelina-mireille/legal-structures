@@ -1,0 +1,25 @@
+schema_version: 1
+graph_id: valid-02
+nodes:
+  - id: base-1
+    kind: model
+    evidence: {grade: declared, source_ref: model-card-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: model-1
+    kind: model
+    evidence: {grade: declared, source_ref: model-card-2, recorded_by: user, recorded_on: 2026-11-01}
+  - id: model-2
+    kind: model
+    evidence: {grade: declared, source_ref: model-card-3, recorded_by: user, recorded_on: 2026-11-01}
+edges:
+  - id: e-1
+    kind: derived_from
+    from: model-1
+    to: base-1
+    method: fine_tune
+    evidence: {grade: documented, source_ref: model-card-2, recorded_by: user, recorded_on: 2026-11-01}
+  - id: e-2
+    kind: derived_from
+    from: model-2
+    to: model-1
+    method: fine_tune
+    evidence: {grade: documented, source_ref: model-card-3, recorded_by: user, recorded_on: 2026-11-01}

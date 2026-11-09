@@ -1,0 +1,9 @@
+schema_version: 1
+graph_id: invalid-02
+nodes:
+  - id: dev-co-1
+    kind: entity
+    entity_type: organisation
+    nationality: unknown
+    evidence: {grade: declared, source_ref: registry-extract-1, recorded_by: user, recorded_on: 2026-11-01}
+edges: []

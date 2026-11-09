@@ -26,3 +26,6 @@ Build order is now thin core, then Downstream v0, then Perimeter v1a. Reasons: p
 
 ## 2026-11-08 (DS0): brief draft kept as an internal analysis
 docs/downstream-brief.md is renamed docs/downstream-analysis.md with history kept. It is not polished or published; it is the source for the DS0 rule list and facts register.
+
+## 2026-11-08 (C1): the graph records facts; readings stay in rules
+Lineage edges record what happened (distilled from, trained on outputs of, developed with a tool). Which edges count under Reading A or Reading B of "developed using" is decided by the DHS rules (DS3), not tagged in the input, so a lineage file never encodes a legal conclusion. Added beyond the plan doc: trained_on (model to dataset), incorporates (software to a component), and the derived_from method continued_pretraining. Ownership percent is a Decimal so threshold boundaries compare exactly. Domain fields (compute, location) wait for DS1, after the law they serve is read.

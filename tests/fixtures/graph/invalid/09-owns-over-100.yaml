@@ -1,0 +1,19 @@
+schema_version: 1
+graph_id: invalid-09
+nodes:
+  - id: parent-co-1
+    kind: entity
+    entity_type: organisation
+    evidence: {grade: declared, source_ref: registry-extract-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: dev-co-1
+    kind: entity
+    entity_type: organisation
+    evidence: {grade: declared, source_ref: registry-extract-2, recorded_by: user, recorded_on: 2026-11-01}
+edges:
+  - id: e-1
+    kind: owns
+    from: parent-co-1
+    to: dev-co-1
+    percent: 120
+    basis: equity
+    evidence: {grade: declared, source_ref: registry-extract-2, recorded_by: user, recorded_on: 2026-11-01}

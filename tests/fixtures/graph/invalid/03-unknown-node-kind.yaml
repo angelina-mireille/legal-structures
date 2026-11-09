@@ -1,0 +1,7 @@
+schema_version: 1
+graph_id: invalid-03
+nodes:
+  - id: model-1
+    kind: checkpoint
+    evidence: {grade: declared, source_ref: model-card-1, recorded_by: user, recorded_on: 2026-11-01}
+edges: []

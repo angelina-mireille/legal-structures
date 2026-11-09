@@ -1,0 +1,695 @@
+{
+  "$defs": {
+    "ControlsEdge": {
+      "additionalProperties": false,
+      "description": "One entity controls another; means describes the fact.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "controls",
+          "title": "Kind",
+          "type": "string"
+        },
+        "means": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Means",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind",
+        "means"
+      ],
+      "title": "ControlsEdge",
+      "type": "object"
+    },
+    "DatasetNode": {
+      "additionalProperties": false,
+      "description": "A dataset.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "dataset",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "evidence"
+      ],
+      "title": "DatasetNode",
+      "type": "object"
+    },
+    "DerivedFromEdge": {
+      "additionalProperties": false,
+      "description": "A model built from another model by the stated method.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "derived_from",
+          "title": "Kind",
+          "type": "string"
+        },
+        "method": {
+          "enum": [
+            "fine_tune",
+            "continued_pretraining",
+            "quantize",
+            "prune",
+            "merge"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind",
+        "method"
+      ],
+      "title": "DerivedFromEdge",
+      "type": "object"
+    },
+    "DevelopedByEdge": {
+      "additionalProperties": false,
+      "description": "A model, dataset or software developed by an entity.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "developed_by",
+          "title": "Kind",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind"
+      ],
+      "title": "DevelopedByEdge",
+      "type": "object"
+    },
+    "DevelopedWithToolEdge": {
+      "additionalProperties": false,
+      "description": "Something developed with the help of a model or software tool.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "developed_with_tool",
+          "title": "Kind",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind"
+      ],
+      "title": "DevelopedWithToolEdge",
+      "type": "object"
+    },
+    "DistilledFromEdge": {
+      "additionalProperties": false,
+      "description": "A model distilled from a teacher model.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "distilled_from",
+          "title": "Kind",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind"
+      ],
+      "title": "DistilledFromEdge",
+      "type": "object"
+    },
+    "EntityNode": {
+      "additionalProperties": false,
+      "description": "An organisation or an individual (no name or identity fields).",
+      "properties": {
+        "entity_type": {
+          "enum": [
+            "organisation",
+            "individual"
+          ],
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "entity",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "entity_type",
+        "evidence"
+      ],
+      "title": "EntityNode",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "description": "Where a fact comes from and how strong it is.",
+      "properties": {
+        "grade": {
+          "enum": [
+            "declared",
+            "documented",
+            "verified",
+            "suspected"
+          ],
+          "type": "string"
+        },
+        "recorded_by": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Recorded By",
+          "type": "string"
+        },
+        "recorded_on": {
+          "format": "date",
+          "title": "Recorded On",
+          "type": "string"
+        },
+        "source_ref": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "grade",
+        "source_ref",
+        "recorded_by",
+        "recorded_on"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "IncorporatesEdge": {
+      "additionalProperties": false,
+      "description": "Software that contains a model, dataset or other software.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "incorporates",
+          "title": "Kind",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind"
+      ],
+      "title": "IncorporatesEdge",
+      "type": "object"
+    },
+    "ModelNode": {
+      "additionalProperties": false,
+      "description": "An AI model.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "model",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "evidence"
+      ],
+      "title": "ModelNode",
+      "type": "object"
+    },
+    "OwnsEdge": {
+      "additionalProperties": false,
+      "description": "A direct stake of one entity in another. No aggregation or indirect calculation.",
+      "properties": {
+        "basis": {
+          "enum": [
+            "equity",
+            "voting",
+            "unknown"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "owns",
+          "title": "Kind",
+          "type": "string"
+        },
+        "percent": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "maximum": 100.0,
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Percent"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind",
+        "percent",
+        "basis"
+      ],
+      "title": "OwnsEdge",
+      "type": "object"
+    },
+    "SoftwareNode": {
+      "additionalProperties": false,
+      "description": "A software artefact.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "form": {
+          "enum": [
+            "application",
+            "service",
+            "library",
+            "source_code"
+          ],
+          "title": "Form",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "software",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "form",
+        "evidence"
+      ],
+      "title": "SoftwareNode",
+      "type": "object"
+    },
+    "TrainedOnEdge": {
+      "additionalProperties": false,
+      "description": "A model trained on a dataset.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "trained_on",
+          "title": "Kind",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind"
+      ],
+      "title": "TrainedOnEdge",
+      "type": "object"
+    },
+    "TrainedOnOutputOfEdge": {
+      "additionalProperties": false,
+      "description": "A model or dataset built from another model's outputs.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "trained_on_output_of",
+          "title": "Kind",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind"
+      ],
+      "title": "TrainedOnOutputOfEdge",
+      "type": "object"
+    },
+    "UsesCodeFromEdge": {
+      "additionalProperties": false,
+      "description": "A model or software that uses code from a software artefact.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "from": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "From",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "uses_code_from",
+          "title": "Kind",
+          "type": "string"
+        },
+        "to": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "from",
+        "to",
+        "evidence",
+        "kind"
+      ],
+      "title": "UsesCodeFromEdge",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A whole graph file. Whole-graph checks run on every construction.",
+  "properties": {
+    "edges": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "controls": "#/$defs/ControlsEdge",
+            "derived_from": "#/$defs/DerivedFromEdge",
+            "developed_by": "#/$defs/DevelopedByEdge",
+            "developed_with_tool": "#/$defs/DevelopedWithToolEdge",
+            "distilled_from": "#/$defs/DistilledFromEdge",
+            "incorporates": "#/$defs/IncorporatesEdge",
+            "owns": "#/$defs/OwnsEdge",
+            "trained_on": "#/$defs/TrainedOnEdge",
+            "trained_on_output_of": "#/$defs/TrainedOnOutputOfEdge",
+            "uses_code_from": "#/$defs/UsesCodeFromEdge"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/DerivedFromEdge"
+          },
+          {
+            "$ref": "#/$defs/DistilledFromEdge"
+          },
+          {
+            "$ref": "#/$defs/TrainedOnOutputOfEdge"
+          },
+          {
+            "$ref": "#/$defs/TrainedOnEdge"
+          },
+          {
+            "$ref": "#/$defs/UsesCodeFromEdge"
+          },
+          {
+            "$ref": "#/$defs/DevelopedWithToolEdge"
+          },
+          {
+            "$ref": "#/$defs/IncorporatesEdge"
+          },
+          {
+            "$ref": "#/$defs/DevelopedByEdge"
+          },
+          {
+            "$ref": "#/$defs/OwnsEdge"
+          },
+          {
+            "$ref": "#/$defs/ControlsEdge"
+          }
+        ]
+      },
+      "title": "Edges",
+      "type": "array"
+    },
+    "graph_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+      "title": "Graph Id",
+      "type": "string"
+    },
+    "nodes": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "dataset": "#/$defs/DatasetNode",
+            "entity": "#/$defs/EntityNode",
+            "model": "#/$defs/ModelNode",
+            "software": "#/$defs/SoftwareNode"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/EntityNode"
+          },
+          {
+            "$ref": "#/$defs/ModelNode"
+          },
+          {
+            "$ref": "#/$defs/DatasetNode"
+          },
+          {
+            "$ref": "#/$defs/SoftwareNode"
+          }
+        ]
+      },
+      "title": "Nodes",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "graph_id",
+    "nodes",
+    "edges"
+  ],
+  "title": "Graph",
+  "type": "object"
+}

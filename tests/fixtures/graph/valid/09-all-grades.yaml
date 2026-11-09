@@ -1,0 +1,21 @@
+schema_version: 1
+graph_id: valid-09
+nodes:
+  - id: model-1
+    kind: model
+    evidence: {grade: declared, source_ref: questionnaire-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: model-2
+    kind: model
+    evidence: {grade: documented, source_ref: model-card-2, recorded_by: user, recorded_on: 2026-11-01}
+  - id: model-3
+    kind: model
+    evidence: {grade: verified, source_ref: weights-hash-check-1, recorded_by: reviewer, recorded_on: 2026-11-02}
+  - id: model-4
+    kind: model
+    evidence: {grade: suspected, source_ref: benchmark-similarity-note-1, recorded_by: analyst, recorded_on: 2026-11-03}
+edges:
+  - id: e-1
+    kind: distilled_from
+    from: model-2
+    to: model-4
+    evidence: {grade: suspected, source_ref: benchmark-similarity-note-1, recorded_by: analyst, recorded_on: 2026-11-03}

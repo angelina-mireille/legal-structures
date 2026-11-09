@@ -1,0 +1,64 @@
+schema_version: 1
+graph_id: valid-08
+nodes:
+  - id: model-1
+    kind: model
+    evidence: {grade: declared, source_ref: model-card-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: dev-co-1
+    kind: entity
+    entity_type: organisation
+    evidence: {grade: documented, source_ref: registry-extract-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: parent-co-1
+    kind: entity
+    entity_type: organisation
+    evidence: {grade: documented, source_ref: registry-extract-2, recorded_by: user, recorded_on: 2026-11-01}
+  - id: holding-co-1
+    kind: entity
+    entity_type: organisation
+    evidence: {grade: documented, source_ref: registry-extract-3, recorded_by: user, recorded_on: 2026-11-01}
+  - id: individual-1
+    kind: entity
+    entity_type: individual
+    evidence: {grade: declared, source_ref: questionnaire-1, recorded_by: user, recorded_on: 2026-11-01}
+edges:
+  - id: e-1
+    kind: developed_by
+    from: model-1
+    to: dev-co-1
+    evidence: {grade: declared, source_ref: model-card-1, recorded_by: user, recorded_on: 2026-11-01}
+  # Two stakes between the same pair, differing in basis.
+  - id: e-2
+    kind: owns
+    from: parent-co-1
+    to: dev-co-1
+    percent: 60
+    basis: equity
+    evidence: {grade: documented, source_ref: registry-extract-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: e-3
+    kind: owns
+    from: parent-co-1
+    to: dev-co-1
+    percent: 51.5
+    basis: voting
+    evidence: {grade: documented, source_ref: registry-extract-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: e-4
+    kind: controls
+    from: holding-co-1
+    to: parent-co-1
+    means: holds a contractual right to appoint a majority of the board
+    evidence: {grade: documented, source_ref: shareholder-agreement-1, recorded_by: user, recorded_on: 2026-11-01}
+  # Cross-holding: with e-2 this makes an owns cycle, which is allowed.
+  - id: e-5
+    kind: owns
+    from: dev-co-1
+    to: parent-co-1
+    percent: 12.5
+    basis: equity
+    evidence: {grade: documented, source_ref: registry-extract-2, recorded_by: user, recorded_on: 2026-11-01}
+  - id: e-6
+    kind: owns
+    from: individual-1
+    to: holding-co-1
+    percent: 100
+    basis: unknown
+    evidence: {grade: declared, source_ref: questionnaire-1, recorded_by: user, recorded_on: 2026-11-01}

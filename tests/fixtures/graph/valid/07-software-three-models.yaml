@@ -1,0 +1,32 @@
+schema_version: 1
+graph_id: valid-07
+nodes:
+  - id: app-1
+    kind: software
+    form: application
+    evidence: {grade: declared, source_ref: product-sheet-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: model-1
+    kind: model
+    evidence: {grade: declared, source_ref: model-card-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: model-2
+    kind: model
+    evidence: {grade: declared, source_ref: model-card-2, recorded_by: user, recorded_on: 2026-11-01}
+  - id: model-3
+    kind: model
+    evidence: {grade: declared, source_ref: model-card-3, recorded_by: user, recorded_on: 2026-11-01}
+edges:
+  - id: e-1
+    kind: incorporates
+    from: app-1
+    to: model-1
+    evidence: {grade: declared, source_ref: product-sheet-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: e-2
+    kind: incorporates
+    from: app-1
+    to: model-2
+    evidence: {grade: declared, source_ref: product-sheet-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: e-3
+    kind: incorporates
+    from: app-1
+    to: model-3
+    evidence: {grade: declared, source_ref: product-sheet-1, recorded_by: user, recorded_on: 2026-11-01}

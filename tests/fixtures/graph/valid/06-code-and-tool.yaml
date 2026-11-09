@@ -1,0 +1,25 @@
+schema_version: 1
+graph_id: valid-06
+nodes:
+  - id: model-1
+    kind: model
+    evidence: {grade: declared, source_ref: model-card-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: lib-1
+    kind: software
+    form: library
+    evidence: {grade: declared, source_ref: repo-readme-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: tool-1
+    kind: software
+    form: application
+    evidence: {grade: declared, source_ref: vendor-page-1, recorded_by: user, recorded_on: 2026-11-01}
+edges:
+  - id: e-1
+    kind: uses_code_from
+    from: model-1
+    to: lib-1
+    evidence: {grade: documented, source_ref: model-card-1, recorded_by: user, recorded_on: 2026-11-01}
+  - id: e-2
+    kind: developed_with_tool
+    from: model-1
+    to: tool-1
+    evidence: {grade: declared, source_ref: questionnaire-1, recorded_by: user, recorded_on: 2026-11-01}
