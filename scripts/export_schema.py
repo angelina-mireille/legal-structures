@@ -1,27 +1,43 @@
-"""Write schemas/graph.schema.json from the graph model.
+"""Write schemas/graph.schema.json and schemas/rule.schema.json from the models.
 
 Run with: uv run python scripts/export_schema.py
-A test fails if the committed file differs from a fresh export.
+Tests fail if either committed file differs from a fresh export.
 """
 
 import json
 from pathlib import Path
 
-from core.graph import Graph
+from pydantic import BaseModel
 
-SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "graph.schema.json"
+from core.graph import Graph
+from core.rules import Rule
+
+SCHEMA_DIR = Path(__file__).resolve().parent.parent / "schemas"
+SCHEMA_PATH = SCHEMA_DIR / "graph.schema.json"
+RULE_SCHEMA_PATH = SCHEMA_DIR / "rule.schema.json"
+
+
+def _dump(model: type[BaseModel]) -> str:
+    """Return a model's JSON Schema as text: sorted keys, 2-space indent, trailing newline."""
+    return json.dumps(model.model_json_schema(), indent=2, sort_keys=True) + "\n"
 
 
 def build_schema() -> str:
-    """Return the graph JSON Schema as text: sorted keys, 2-space indent, trailing newline."""
-    return json.dumps(Graph.model_json_schema(), indent=2, sort_keys=True) + "\n"
+    """Return the graph JSON Schema as text."""
+    return _dump(Graph)
+
+
+def build_rule_schema() -> str:
+    """Return the rule JSON Schema as text (one rule file)."""
+    return _dump(Rule)
 
 
 def main() -> None:
-    """Write the schema to SCHEMA_PATH."""
-    SCHEMA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    SCHEMA_PATH.write_text(build_schema(), encoding="utf-8")
-    print(f"wrote {SCHEMA_PATH}")
+    """Write both schemas."""
+    SCHEMA_DIR.mkdir(parents=True, exist_ok=True)
+    for path, text in ((SCHEMA_PATH, build_schema()), (RULE_SCHEMA_PATH, build_rule_schema())):
+        path.write_text(text, encoding="utf-8")
+        print(f"wrote {path}")
 
 
 if __name__ == "__main__":

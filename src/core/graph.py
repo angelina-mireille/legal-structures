@@ -11,12 +11,11 @@ is written from: B, to: T.
 from __future__ import annotations
 
 from datetime import date
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from enum import StrEnum
 from pathlib import Path
 from typing import Annotated, Any, Final, Literal
 
-import yaml
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -27,7 +26,8 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from yaml.constructor import ConstructorError
+
+from core.yaml_strict import StrictYAMLError, load_yaml
 
 # Edge kind -> (allowed from-node kinds, allowed to-node kinds).
 # Perimeter kinds (D1) are added here as new rows.
@@ -350,57 +350,12 @@ def _lineage_cycles(nodes: tuple[Node, ...], edges: tuple[Edge, ...]) -> list[st
 
 # ---- Loader ----------------------------------------------------------------
 
-_YAML_SPECIAL_FLOATS: Final[dict[str, str]] = {
-    ".inf": "Infinity",
-    "+.inf": "Infinity",
-    "-.inf": "-Infinity",
-    ".nan": "NaN",
-}
-
-
-class _StrictLoader(yaml.SafeLoader):
-    """Safe YAML loader that rejects duplicate keys and reads floats as Decimal."""
-
-    def construct_mapping(self, node: yaml.MappingNode, deep: bool = False) -> dict[Any, Any]:
-        """Build a mapping, failing on any key that appears twice."""
-        self.flatten_mapping(node)
-        seen: set[Any] = set()
-        for key_node, _ in node.value:
-            key = self.construct_object(key_node, deep=deep)
-            try:
-                duplicate = key in seen
-            except TypeError:
-                continue  # unhashable key: the base constructor reports it
-            if duplicate:
-                raise ConstructorError(
-                    "while constructing a mapping",
-                    node.start_mark,
-                    f"duplicate key {key!r}",
-                    key_node.start_mark,
-                )
-            seen.add(key)
-        return super().construct_mapping(node, deep=deep)
-
-
-def _construct_decimal(loader: _StrictLoader, node: yaml.ScalarNode) -> Decimal:
-    """Read a YAML float from its written text, so 33.3 is exactly Decimal("33.3")."""
-    text = str(loader.construct_scalar(node)).replace("_", "").lower()
-    try:
-        return Decimal(_YAML_SPECIAL_FLOATS.get(text, text))
-    except InvalidOperation as err:
-        raise ConstructorError(
-            None, None, f"cannot read {text!r} as a number", node.start_mark
-        ) from err
-
-
-_StrictLoader.add_constructor("tag:yaml.org,2002:float", _construct_decimal)
-
 
 def load_graph(path: str | Path) -> Graph:
     """Load and validate a graph file. Any failure raises GraphError; nothing partial."""
     try:
         text = Path(path).read_text(encoding="utf-8")
-        data = yaml.load(text, Loader=_StrictLoader)  # safe: a SafeLoader subclass
+        data = load_yaml(text)
         return Graph.model_validate(data)
-    except (OSError, UnicodeDecodeError, yaml.YAMLError, ValidationError) as err:
+    except (OSError, UnicodeDecodeError, StrictYAMLError, ValidationError) as err:
         raise GraphError(f"{path}: {err}") from err

@@ -1,0 +1,23 @@
+# Synthetic test rule. Not law. An exemption named in another rule's unless list.
+id: TEST-EXEMPT-001
+version: 1.0.0
+regime: TEST
+title: "Test exemption"
+law_status: in_force
+applies_to: model
+binding: null
+trigger:
+  fact: test.fact_exempt
+  min_grade: documented
+effect: TEST_EXEMPT
+unless: []
+citation:
+  primary: "Test Source s. 2"
+  source_id: test-source-1
+  source_url: "https://example.org/test-source-1"
+  pinpoint_quote_hash: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+verification:
+  status: verified
+  last_verified: 2026-11-01
+  verified_by: user
+clock: null

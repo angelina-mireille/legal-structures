@@ -1,0 +1,8 @@
+id: test-source-1
+title: "Test Source (synthetic)"
+publisher: "Example publisher (synthetic)"
+url: "https://example.org/test-source-1"
+retrieved: 2026-11-01
+sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+stored: false
+text_file: null

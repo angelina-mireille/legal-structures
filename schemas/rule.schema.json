@@ -1,0 +1,412 @@
+{
+  "$defs": {
+    "AllExpr": {
+      "additionalProperties": false,
+      "description": "True when every child is true.",
+      "properties": {
+        "all": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AllExpr"
+              },
+              {
+                "$ref": "#/$defs/AnyExpr"
+              },
+              {
+                "$ref": "#/$defs/NotExpr"
+              },
+              {
+                "$ref": "#/$defs/FactExpr"
+              }
+            ]
+          },
+          "minItems": 1,
+          "title": "All",
+          "type": "array"
+        }
+      },
+      "required": [
+        "all"
+      ],
+      "title": "AllExpr",
+      "type": "object"
+    },
+    "AnyExpr": {
+      "additionalProperties": false,
+      "description": "True when at least one child is true.",
+      "properties": {
+        "any": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/AllExpr"
+              },
+              {
+                "$ref": "#/$defs/AnyExpr"
+              },
+              {
+                "$ref": "#/$defs/NotExpr"
+              },
+              {
+                "$ref": "#/$defs/FactExpr"
+              }
+            ]
+          },
+          "minItems": 1,
+          "title": "Any",
+          "type": "array"
+        }
+      },
+      "required": [
+        "any"
+      ],
+      "title": "AnyExpr",
+      "type": "object"
+    },
+    "Citation": {
+      "additionalProperties": false,
+      "description": "Where the rule comes from: a source record in sources/ and a pinpoint quote hash.",
+      "properties": {
+        "pinpoint_quote_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Pinpoint Quote Hash",
+          "type": "string"
+        },
+        "primary": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Primary",
+          "type": "string"
+        },
+        "source_id": {
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_url": {
+          "pattern": "^https://\\S+$",
+          "title": "Source Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary",
+        "source_id",
+        "source_url",
+        "pinpoint_quote_hash"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "Clock": {
+      "additionalProperties": false,
+      "description": "A deadline: amount units after the trigger event (plain text).",
+      "properties": {
+        "amount": {
+          "minimum": 1,
+          "title": "Amount",
+          "type": "integer"
+        },
+        "trigger": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Trigger",
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "hours",
+            "calendar_days",
+            "business_days"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "unit",
+        "trigger"
+      ],
+      "title": "Clock",
+      "type": "object"
+    },
+    "FactExpr": {
+      "additionalProperties": false,
+      "description": "A leaf naming a fact, optionally with the weakest evidence grade that counts.",
+      "properties": {
+        "fact": {
+          "pattern": "^[a-z][a-z0-9_.]{0,127}$",
+          "title": "Fact",
+          "type": "string"
+        },
+        "min_grade": {
+          "anyOf": [
+            {
+              "enum": [
+                "declared",
+                "documented",
+                "verified",
+                "suspected"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "fact"
+      ],
+      "title": "FactExpr",
+      "type": "object"
+    },
+    "Interpretation": {
+      "additionalProperties": false,
+      "description": "One reading of an unsettled provision, with its own trigger.",
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_]{0,31}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "summary": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Summary",
+          "type": "string"
+        },
+        "trigger": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/AllExpr"
+            },
+            {
+              "$ref": "#/$defs/AnyExpr"
+            },
+            {
+              "$ref": "#/$defs/NotExpr"
+            },
+            {
+              "$ref": "#/$defs/FactExpr"
+            }
+          ],
+          "title": "Trigger"
+        }
+      },
+      "required": [
+        "id",
+        "summary",
+        "trigger"
+      ],
+      "title": "Interpretation",
+      "type": "object"
+    },
+    "NotExpr": {
+      "additionalProperties": false,
+      "description": "Negates its child. \"not\" is a Python keyword, so the field is not_.",
+      "properties": {
+        "not": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/AllExpr"
+            },
+            {
+              "$ref": "#/$defs/AnyExpr"
+            },
+            {
+              "$ref": "#/$defs/NotExpr"
+            },
+            {
+              "$ref": "#/$defs/FactExpr"
+            }
+          ],
+          "title": "Not"
+        }
+      },
+      "required": [
+        "not"
+      ],
+      "title": "NotExpr",
+      "type": "object"
+    },
+    "Verification": {
+      "additionalProperties": false,
+      "description": "Who last checked the rule against its source, and when.",
+      "properties": {
+        "last_verified": {
+          "format": "date",
+          "title": "Last Verified",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "secondary",
+            "unverified"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "verified_by": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Verified By",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "last_verified",
+        "verified_by"
+      ],
+      "title": "Verification",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One rule file.",
+  "properties": {
+    "applies_to": {
+      "enum": [
+        "entity",
+        "model",
+        "dataset",
+        "software"
+      ],
+      "title": "Applies To",
+      "type": "string"
+    },
+    "binding": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Z][A-Z0-9-]{2,63}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Binding"
+    },
+    "citation": {
+      "$ref": "#/$defs/Citation"
+    },
+    "clock": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Clock"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "effect": {
+      "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+      "title": "Effect",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^[A-Z][A-Z0-9-]{2,63}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "interpretations": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Interpretation"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interpretations"
+    },
+    "law_status": {
+      "enum": [
+        "in_force",
+        "proposed"
+      ],
+      "title": "Law Status",
+      "type": "string"
+    },
+    "regime": {
+      "pattern": "^[A-Z][A-Z0-9-]{1,31}$",
+      "title": "Regime",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Title",
+      "type": "string"
+    },
+    "trigger": {
+      "anyOf": [
+        {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/AllExpr"
+            },
+            {
+              "$ref": "#/$defs/AnyExpr"
+            },
+            {
+              "$ref": "#/$defs/NotExpr"
+            },
+            {
+              "$ref": "#/$defs/FactExpr"
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Trigger"
+    },
+    "unless": {
+      "default": [],
+      "items": {
+        "pattern": "^[A-Z][A-Z0-9-]{2,63}$",
+        "type": "string"
+      },
+      "title": "Unless",
+      "type": "array"
+    },
+    "verification": {
+      "$ref": "#/$defs/Verification"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "regime",
+    "title",
+    "law_status",
+    "applies_to",
+    "binding",
+    "effect",
+    "citation",
+    "verification",
+    "clock"
+  ],
+  "title": "Rule",
+  "type": "object"
+}

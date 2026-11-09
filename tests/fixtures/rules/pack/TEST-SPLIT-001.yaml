@@ -1,0 +1,33 @@
+# Synthetic test rule. Not law. Two interpretations of the same invented provision.
+id: TEST-SPLIT-001
+version: 0.1.0
+regime: TEST
+title: "Test rule with two readings"
+law_status: proposed
+applies_to: software
+binding: null
+interpretations:
+  - id: reading_a
+    summary: "Test reading A: fact c alone is enough."
+    trigger:
+      fact: test.fact_c
+  - id: reading_b
+    summary: "Test reading B: fact c or fact d, verified."
+    trigger:
+      any:
+        - fact: test.fact_c
+          min_grade: verified
+        - fact: test.fact_d
+          min_grade: verified
+effect: TEST_SPLIT
+unless: []
+citation:
+  primary: "Test Source s. 4"
+  source_id: test-source-1
+  source_url: "https://example.org/test-source-1"
+  pinpoint_quote_hash: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+verification:
+  status: unverified
+  last_verified: 2026-11-01
+  verified_by: user
+clock: null

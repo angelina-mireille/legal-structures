@@ -1,0 +1,30 @@
+# Synthetic test rule. Not law. Gated by a binding rule, with an exemption and a clock.
+id: TEST-RULE-001
+version: 1.0.0
+regime: TEST
+title: "Test rule with binding, exemption and clock"
+law_status: in_force
+applies_to: model
+binding: TEST-BIND-001
+trigger:
+  all:
+    - fact: test.fact_a
+    - not:
+        fact: test.fact_b
+        min_grade: declared
+effect: TEST_APPLIES
+unless:
+  - TEST-EXEMPT-001
+citation:
+  primary: "Test Source s. 3"
+  source_id: test-source-1
+  source_url: "https://example.org/test-source-1"
+  pinpoint_quote_hash: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+verification:
+  status: verified
+  last_verified: 2026-11-01
+  verified_by: user
+clock:
+  amount: 72
+  unit: hours
+  trigger: "test event occurs"
