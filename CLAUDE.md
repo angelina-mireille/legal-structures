@@ -9,7 +9,7 @@ Prototype legal-reasoning tools. Not legal advice. Not compliance-grade.
 - rules/: rule YAML files, one rule per file
 - sources/: primary-source records (URL, retrieval date, SHA-256)
 - docs/plan.md: milestones; docs/decisions.md: decision log
-- docs/downstream-analysis.md: internal Downstream analysis, not for publication
+- docs/downstream-analysis.md: Downstream working analysis (unpolished draft; the repo is public)
 
 ## Commands
 - Sync: uv sync
