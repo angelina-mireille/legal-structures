@@ -1,6 +1,6 @@
 # "Developed using": who the DHS DeepSeek order reaches, under two readings
 
-<!-- Skeleton (B2 step 1). Placeholders only. No analysis yet. -->
+> **Internal working analysis. Not for publication and not legal advice.** The parked Downstream brief draft (milestone B2), kept as the source for the Downstream v0 rule list and facts register (milestone DS0). Saved 2026-11-08.
 <!-- CLAIM needs a source; INFERENCE is drawn from cited sources; ANALYSIS is our own reasoning and needs no legal source. -->
 
 ## 1. Why the phrase matters to contractors
