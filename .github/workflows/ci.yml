@@ -12,6 +12,7 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.2
       - run: uv sync
       - run: uv run ruff check .
+      - run: uv run ruff format --check .
       - run: uv run pytest
       - name: Check source library (warning only)
         run: uv run python scripts/check_sources.py
