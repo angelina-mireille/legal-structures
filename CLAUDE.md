@@ -48,3 +48,12 @@ Prototype legal-reasoning tools. Not legal advice. Not compliance-grade.
 ## Style
 - Python 3.12, type hints, pydantic models, pytest, ruff.
 - Small functions with docstrings. No new dependencies without asking.
+
+## Working rules for every session
+- Plan mode for anything that writes code. Tests first; show the failing run before implementing.
+- Core milestones use synthetic data only: TEST- ids, regime TEST, example.org URLs. Never write a real rule, citation, threshold or date unless I paste the primary text.
+- Tests pass fixed dates. Code never calls date.today() or datetime.now().
+- At the end of every milestone, show: the full pytest summary, ruff check, ruff format --check, git status, git --no-pager diff --stat, and git --no-pager diff of every changed existing file. Then wait.
+- Never commit until I say "commit". Stage only the paths I approve, then show git show --stat HEAD and git status. Never push.
+- Edit only the files in the milestone's list. If another file needs changing, stop and say why.
+- Add no checks or features I haven't asked for; list ideas under "Other ideas (not building)".
