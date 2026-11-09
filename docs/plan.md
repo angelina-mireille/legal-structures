@@ -23,8 +23,8 @@ Phase A (done), then Phase C (about 25.5 hours), then Downstream v0 (about 33 ho
 
 | ID | Milestone | Hours | Done when | Status |
 |---|---|---|---|---|
-| C1 | Graph model in pydantic, JSON Schema export, fixtures. Downstream first: entity, model, dataset and software nodes; lineage edges; evidence on every node and edge; ownership stakes. Perimeter node and edge kinds are added in D1. | 4-5 | 10 valid and 10 invalid fixtures behave as expected; unknown fields are rejected; the committed JSON Schema matches the model. | |
-| C2 | Rule schema, loader, staleness warning. Each rule has a status: in_force or proposed. | 3 | A rule missing a citation, source URL or verification date fails to load; a 91-day-old rule loads with a warning. | |
+| C1 | Graph model in pydantic, JSON Schema export, fixtures. Downstream first: entity, model, dataset and software nodes; lineage edges; evidence on every node and edge; ownership stakes. Perimeter node and edge kinds are added in D1. | 4-5 | 10 valid and 10 invalid fixtures behave as expected; unknown fields are rejected; the committed JSON Schema matches the model. | Done (commit c181448) |
+| C2 | Rule schema, loader, staleness warning. Each rule has a status: in_force or proposed. | 3 | A rule missing a citation, source URL or verification date fails to load; a 91-day-old rule loads with a warning. | Done (commit 5ddc721) |
 | C3a | Evaluator: three-valued logic, binding rules first. | 4 | Truth-table tests for all, any and not over true, false and unknown pass. | |
 | C3b | Five outcomes, exemptions, interpretations, clocks; the result model holds several regimes per entity and a CONFLICT field for v2. | 4 | Each outcome has at least 3 tests; removing any decisive fact yields INSUFFICIENT_FACTS. | |
 | C4 | Diff engine. Also renders the divergence table across regimes. | 3 | On 10 hand-made pairs, the diff names exactly the changed facts in each flipped rule's trigger. | |
@@ -50,7 +50,7 @@ Phase A (done), then Phase C (about 25.5 hours), then Downstream v0 (about 33 ho
 | DS9 | 12 gold cases and the metamorphic tests | 4 | Labels locked before the first run; all relations pass or failures are logged | |
 | DS10 | Demo, README written as a legal memo (including the analysis), 2-minute recording | 4 | Runs from one command; the recording is under 2:00 | |
 
-## Phase D: Perimeter v1a (weeks 8-11, about 38.5 hours)
+## Phase D: Perimeter v1a (after Downstream v0, about 38.5 hours)
 
 | ID | Milestone | Hours | Done when | Status |
 |---|---|---|---|---|
@@ -67,7 +67,7 @@ Phase A (done), then Phase C (about 25.5 hours), then Downstream v0 (about 33 ho
 | D10 | Second reader: send the packet, receive labels, compute kappa and Wilson intervals. | 2, plus 2-3 weeks waiting | A script produces the agreement table from the two label files. | |
 | D11 | Eval report. | 3 | Published with counts, intervals, the contaminated split, false positives, limits, and the second reader's type (practitioner or student). | |
 
-## Phase E: packaging (week 12, about 8.5 hours)
+## Phase E: packaging (after Phase D, about 8.5 hours)
 
 | ID | Milestone | Hours | Done when | Status |
 |---|---|---|---|---|
