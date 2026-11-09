@@ -5,10 +5,11 @@ Prototype legal-reasoning tools. Not legal advice. Not compliance-grade.
 ## Layout
 - src/core/: graph model, rule loader, evaluator, diff engine, audit log
 - src/perimeter/: agent-payment perimeter rules and CLI
-- src/downstream/: model-lineage rules (later)
+- src/downstream/: model-lineage rules (Downstream v0, built first)
 - rules/: rule YAML files, one rule per file
 - sources/: primary-source records (URL, retrieval date, SHA-256)
 - docs/plan.md: milestones; docs/decisions.md: decision log
+- docs/downstream-analysis.md: internal Downstream analysis, not for publication
 
 ## Commands
 - Sync: uv sync

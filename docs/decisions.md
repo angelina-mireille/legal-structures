@@ -20,3 +20,9 @@ The EU output label is renamed from 'presumptively provider' to 'indicative crit
 
 ## 2026-10-29 (B2): OCR for scanned pages of fr-2026-21447
 Quotes from scanned pages of fr-2026-21447 are OCR transcriptions, each checked against the page image by me and marked as such.
+
+## 2026-11-08 (plan): Downstream v0 built before Perimeter v1a
+Build order is now thin core, then Downstream v0, then Perimeter v1a. Reasons: public commentary on the DHS order filled quickly; vendors face provenance questionnaires now; three overlapping US regimes apply different tests, which is Downstream's thesis. LLM milestones C7a and C7b move after Downstream v0. The Perimeter brief is written as cited rule files during Phase D.
+
+## 2026-11-08 (DS0): brief draft kept as an internal analysis
+docs/downstream-brief.md is renamed docs/downstream-analysis.md with history kept. It is not polished or published; it is the source for the DS0 rule list and facts register.
