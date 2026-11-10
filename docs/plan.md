@@ -25,7 +25,7 @@ Phase A (done), then Phase C (about 25.5 hours), then Downstream v0 (about 33 ho
 |---|---|---|---|---|
 | C1 | Graph model in pydantic, JSON Schema export, fixtures. Downstream first: entity, model, dataset and software nodes; lineage edges; evidence on every node and edge; ownership stakes. Perimeter node and edge kinds are added in D1. | 4-5 | 10 valid and 10 invalid fixtures behave as expected; unknown fields are rejected; the committed JSON Schema matches the model. | Done (commit c181448) |
 | C2 | Rule schema, loader, staleness warning. Each rule has a status: in_force or proposed. | 3 | A rule missing a citation, source URL or verification date fails to load; a 91-day-old rule loads with a warning. | Done (commit 5ddc721) |
-| C3a | Evaluator: three-valued logic, binding rules first. | 4 | Truth-table tests for all, any and not over true, false and unknown pass. | |
+| C3a | Evaluator: three-valued logic, binding rules first. | 4 | Truth-table tests for all, any and not over true, false and unknown pass. | Done (commit c53d1c4) |
 | C3b | Five outcomes, exemptions, interpretations, clocks; the result model holds several regimes per entity and a CONFLICT field for v2. | 4 | Each outcome has at least 3 tests; removing any decisive fact yields INSUFFICIENT_FACTS. | |
 | C4 | Diff engine. Also renders the divergence table across regimes. | 3 | On 10 hand-made pairs, the diff names exactly the changed facts in each flipped rule's trigger. | |
 | C5 | Hash-chained audit log and verify command. | 2.5 | Editing, deleting or reordering any line is detected. | |
@@ -34,21 +34,38 @@ Phase A (done), then Phase C (about 25.5 hours), then Downstream v0 (about 33 ho
 | C7b | Citation validator and prompt-injection suite. | 4 | 20 of 20 invented-citation outputs rejected; 15 injection documents leave extracted facts unchanged and are logged. | Moved after Downstream v0 |
 | C8 | Determinism check and the metamorphic test helper. | 2 | 100 runs are byte-identical; one sample relation uses the helper. | |
 
-## Downstream v0 (about 33 hours, after Phase C)
+## Downstream v0 (showable) — revised 9 Nov 2026
 
-| ID | Milestone (one sitting) | Hours | Done when | Status |
-|---|---|---|---|---|
-| DS0 | Turn the brief draft into a rule list and facts register (no code) | 2 | Every rule has an ID, regime, test, citation and status; the draft is saved as docs/downstream-analysis.md | In progress (draft saved 2026-11-08) |
-| DS1 | Lineage schema and the Product X example | 3 | The schema validates Product X; it has no nationality fields | |
-| DS2 | Excluded-source records for the three US regimes, plus a test that rule code names no source | 3 | Records exist with verification data; the test passes | |
-| DS3 | DHS rules: exclusion (affiliate control) and removal (two readings). Extract order footnotes 8, 11 and 14 first | 3 | Each reading is tested; UNSETTLED appears where they differ | |
-| DS4 | DoW order and NDAA s. 1532 rules, including one ownership threshold. Open the SAM.gov text and the statute first | 3.5 | Both rules are Verified; boundary tests on the threshold pass | |
-| DS5 | EU rule: "indicative criterion met (para 60)", read with para 59, fallbacks in para 61, from the guidelines in sources/ | 2.5 | The rule cites paragraph numbers; fallback thresholds are tested | |
-| DS6 | Divergence report renderer | 3 | Product X's report shows every disagreement with its driving facts | |
-| DS7 | Questionnaire pack (templated) | 3 | Each regime lists the facts needed, their current evidence grade, and conditional attestation text marked for counsel | |
-| DS8 | Pending-law toggle | 2 | A proposed rule can be switched on, and the diff shows what flips | |
-| DS9 | 12 gold cases and the metamorphic tests | 4 | Labels locked before the first run; all relations pass or failures are logged | |
-| DS10 | Demo, README written as a legal memo (including the analysis), 2-minute recording | 4 | Runs from one command; the recording is under 2:00 | |
+| ID | Milestone | Hours | Done when |
+|---|---|---|---|
+| C3a | Evaluator: three-valued logic, binding rules first | 4 | Truth-table tests for all, any and not over true, false and unknown pass |
+| C3b | Five outcomes, exemptions, interpretations, clocks; result model holds several regimes per entity and a CONFLICT field | 4 | Each outcome has at least 3 tests; removing any decisive fact yields INSUFFICIENT_FACTS |
+| C4 | Diff engine, including the divergence table across regimes | 3 | On 10 hand-made pairs, the diff names exactly the changed facts in each flipped rule's trigger |
+| C6 | Renderers: JSON and the counsel memo in Markdown, templated | 3 | Snapshot tests pass; every memo statement carries a rule ID |
+| DS0 | Rule list and facts register (no code); before DS3 | 2 | Every rule has an ID, regime, test, citation and status |
+| DS1 | Lineage schema and the Product X example | 3 | The schema validates Product X; it has no nationality fields |
+| DS2 | Excluded-source records for the US regimes, plus a test that rule code names no source | 3 | Records exist with verification data; the test passes |
+| DS3 | DHS rules: exclusion (affiliate control) and removal (two readings) | 3 | Each reading is tested; UNSETTLED appears where they differ |
+| DS4 | NDAA s. 1532 rule with one ownership threshold; DoW order rule if the SAM.gov text is available, otherwise DoW moves to v0.1 as a data update. Needs the threshold-representation decision first | 3.5 | Rules are Verified; boundary tests on the threshold pass |
+| DS5 | EU indicative-criterion rule (para 60) from the official guidelines, read with para 59; fallback thresholds (para 61). Needs the same threshold decision | 2.5 | The rule cites paragraph numbers; fallback thresholds are tested |
+| DS6 | Divergence report renderer | 3 | Product X's report shows every disagreement with its driving facts |
+| DS10a | One-command demo and README thesis section (estimate) | 2 | Product X runs from one command; the README states status, limits and that no eval is published yet |
+
+About 36 hours.
+
+## Downstream v0.1 — shortly after v0
+
+| ID | Milestone | Hours | Done when |
+|---|---|---|---|
+| C5 | Hash-chained audit log and verify command | 2.5 | Editing, deleting or reordering any line is detected |
+| C8 | Determinism check and the metamorphic test helper | 2 | 100 runs are byte-identical; one sample relation uses the helper |
+| DS7 | Questionnaire pack (templated) | 3 | Each regime lists the facts needed, their current grade, and conditional attestation text marked for counsel |
+| DS8 | Pending-law toggle | 2 | A proposed rule can be switched on, and the diff shows what flips |
+| DS9 | 12 gold cases and the metamorphic tests | 4 | Labels locked before the first run; all relations pass or failures are logged |
+| DS10b | README as a legal memo, 2-minute recording (estimate) | 2 | Recording under 2:00; README carries the analysis and the eval |
+| (DoW) | DoW order rule, if it slipped from DS4 | 1 | Rule Verified from the SAM.gov text |
+
+About 16.5 hours. After v0.1: C7a, C7b, then Perimeter (Phases D and E).
 
 ## Phase D: Perimeter v1a (after Downstream v0, about 38.5 hours)
 
