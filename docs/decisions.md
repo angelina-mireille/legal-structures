@@ -32,3 +32,28 @@ Lineage edges record what happened (distilled from, trained on outputs of, devel
 
 ## 2026-11-08 (C2): rule files and fail-closed loading
 Rules carry law_status (in_force or proposed), named apart from verification.status. A rule has either one trigger or two or more interpretations, never both. Clocks carry an amount and a unit (hours, calendar_days or business_days), because some reporting deadlines are set in hours. Every rule's citation names a source record by id, and the loader checks that the record exists and that its URL matches the rule's source_url. A pack with any invalid file fails to load as a whole; staleness (more than 90 days) and non-verified status are warnings returned with the pack, not errors.
+
+## 2026-11-09 (C3a): evaluator semantics
+- D1 Input: the evaluator takes facts as a mapping from fact name to Fact (value TRUE, FALSE or UNKNOWN; grade required for TRUE and FALSE, absent for UNKNOWN; "missing" rejected). A name absent from the mapping is UNKNOWN. No graph access.
+- D2 Grades: suspected < declared < documented < verified. A TRUE or FALSE fact graded below a leaf's min_grade is UNKNOWN for that leaf; the trace keeps the supplied value and grade.
+- D3 Binding: the binding rule is evaluated first, recursively. Binding FALSE: the trigger is not evaluated and the value is FALSE. Binding TRUE: the value is the trigger value. Binding UNKNOWN: the trigger is evaluated and the value is the Kleene AND of binding and trigger. No binding counts as bound TRUE.
+- D4 Output: raw values with a leaf trace; no outcome labels in the evaluator.
+- Strong Kleene: a result is definite whenever the known facts settle it (FALSE AND UNKNOWN is FALSE), so no fact is asked for that cannot change the result.
+
+Rejected alternatives:
+- Deciding the graph mapping now: it depends on the DS0 facts register and the DS1 schema, and many facts are not graph-derived.
+- Weak Kleene: it asks for facts that cannot change the result.
+- Below-grade as FALSE: under not, weak evidence becomes a definite TRUE.
+- Accepted-grade sets: they need a C2 schema change.
+- Binding UNKNOWN stops with UNKNOWN: it asks the binding question even when the trigger is definitely false.
+- Binding UNKNOWN treated as bound: a hidden legal assumption.
+- Bare values without a trace: C3b would have to re-walk the tree.
+
+Open items:
+- Graph-to-facts mapping (DS1/DS3).
+- Numeric thresholds need a comparison leaf or a precomputed fact, and the threshold must stay in the cited rule (decide before DS4).
+- Grades ignore the direction of a fact: an exculpatory self-declaration counts the same as an admission.
+- Whether CONDITIONAL covers results resting on a suspected FALSE (C3b).
+- "Decisive fact" means a fact whose removal changes the result (C3b).
+- Interpretations and unless (C3b).
+- A binding rule may be about a different subject than the rule it binds (e.g. entity vs model); the facts mapping then carries facts about both subjects. Decide namespacing with the graph-to-facts mapping.
