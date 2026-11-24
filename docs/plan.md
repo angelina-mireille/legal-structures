@@ -39,7 +39,8 @@ Phase A (done), then Phase C (about 25.5 hours), then Downstream v0 (about 33 ho
 | ID | Milestone | Hours | Done when |
 |---|---|---|---|
 | C3a | Evaluator: three-valued logic, binding rules first | 4 | Truth-table tests for all, any and not over true, false and unknown pass |
-| C3b | Five outcomes, exemptions, interpretations, clocks; result model holds several regimes per entity and a CONFLICT field | 4 | Each outcome has at least 3 tests; removing any decisive fact yields INSUFFICIENT_FACTS |
+| C3b | Five outcomes over the evaluator: CONDITIONAL, INSUFFICIENT_FACTS with questions, interpretations (UNSETTLED), not-bound handling | 4 | Each outcome has at least 3 tests; removing any decisive fact yields INSUFFICIENT_FACTS |
+| C3c | Exemptions (strict, flagged), clocks (display only), result model by subject and regime with an unused CONFLICT field, applies_to and law_status filtering | 3 | Each exemption case has a test; the result model round-trips to JSON |
 | C4 | Diff engine, including the divergence table across regimes | 3 | On 10 hand-made pairs, the diff names exactly the changed facts in each flipped rule's trigger |
 | C6 | Renderers: JSON and the counsel memo in Markdown, templated | 3 | Snapshot tests pass; every memo statement carries a rule ID |
 | DS0 | Rule list and facts register (no code); before DS3 | 2 | Every rule has an ID, regime, test, citation and status |
@@ -51,7 +52,7 @@ Phase A (done), then Phase C (about 25.5 hours), then Downstream v0 (about 33 ho
 | DS6 | Divergence report renderer | 3 | Product X's report shows every disagreement with its driving facts |
 | DS10a | One-command demo and README thesis section (estimate) | 2 | Product X runs from one command; the README states status, limits and that no eval is published yet |
 
-About 36 hours.
+About 39 hours.
 
 ## Downstream v0.1 — shortly after v0
 

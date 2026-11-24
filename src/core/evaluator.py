@@ -221,19 +221,40 @@ def _require_trigger(rule: Rule) -> TriggerExpr:
     return rule.trigger
 
 
+def _interpretation_trigger(rule: Rule, interpretation_id: str) -> TriggerExpr:
+    """The trigger of the named interpretation; refused if the rule has no such reading."""
+    if rule.interpretations is None:
+        raise EvaluationError(
+            f"{rule.id}: has a trigger, not interpretations;"
+            f" interpretation {interpretation_id!r} does not apply"
+        )
+    for item in rule.interpretations:
+        if item.id == interpretation_id:
+            return item.trigger
+    raise EvaluationError(f"{rule.id}: has no interpretation {interpretation_id!r}")
+
+
 def _evaluate_rule(
     rule_id: str,
     by_id: Mapping[str, Rule],
     facts: Mapping[str, Fact],
     seen: tuple[str, ...],
+    interpretation_id: str | None = None,
 ) -> RuleEvaluation:
-    """Apply D3: the binding rule first (recursively), then the trigger unless unbound."""
+    """Apply D3: the binding rule first (recursively), then the trigger unless unbound.
+
+    With interpretation_id, that reading's trigger replaces the rule's trigger. Binding
+    rules are always evaluated by their own trigger.
+    """
     if rule_id in seen:
         raise EvaluationError("binding cycle: " + " -> ".join((*seen, rule_id)))
     rule = by_id.get(rule_id)
     if rule is None:
         raise EvaluationError(f"rule {rule_id} is not in the pack")
-    trigger_expr = _require_trigger(rule)
+    if interpretation_id is None:
+        trigger_expr = _require_trigger(rule)
+    else:
+        trigger_expr = _interpretation_trigger(rule, interpretation_id)
     binding: RuleEvaluation | None = None
     bound = TriValue.TRUE
     if rule.binding is not None:
@@ -250,8 +271,17 @@ def _evaluate_rule(
     )
 
 
-def evaluate_rule(rule_id: str, pack: RulePack, facts: Mapping[str, Fact]) -> RuleEvaluation:
-    """Evaluate one rule of the pack, binding rule first (D3)."""
+def evaluate_rule(
+    rule_id: str,
+    pack: RulePack,
+    facts: Mapping[str, Fact],
+    interpretation_id: str | None = None,
+) -> RuleEvaluation:
+    """Evaluate one rule of the pack, binding rule first (D3).
+
+    interpretation_id evaluates that reading's trigger with the rule's binding (C3b).
+    Without it, a rule with interpretations is refused, as before.
+    """
     _check_facts(facts)
     by_id = {rule.id: rule for rule in pack.rules}
-    return _evaluate_rule(rule_id, by_id, facts, ())
+    return _evaluate_rule(rule_id, by_id, facts, (), interpretation_id)

@@ -57,3 +57,33 @@ Open items:
 - "Decisive fact" means a fact whose removal changes the result (C3b).
 - Interpretations and unless (C3b).
 - A binding rule may be about a different subject than the rule it binds (e.g. entity vs model); the facts mapping then carries facts about both subjects. Decide namespacing with the graph-to-facts mapping.
+
+## 2026-11-24 (C3b): outcomes
+- D1 Relevance: a fact is relevant to a rule's result if some TRUE/FALSE assignment of the other unknown facts makes setting it TRUE rather than FALSE change the rule value. It is computed by re-running the C3a evaluator with hypothetical facts at grade verified. More than 12 distinct unknown facts raises OutcomeError (fail closed).
+- D2 Decisive facts: for a TRUE or FALSE rule value, a fact is decisive if removing it from the facts mapping changes the value (by C3a monotonicity, to UNKNOWN).
+- D3 Outcome order for a rule with one trigger, from the rule-level value (binding included):
+  1. Bound FALSE: see S1 (revised).
+  2. Value TRUE or FALSE, and removing every suspected fact makes it UNKNOWN: CONDITIONAL, direction APPLIES_IF_CONFIRMED (TRUE) or DOES_NOT_APPLY_IF_CONFIRMED (FALSE); facts_to_confirm are the removed suspected facts relevant (D1) to the reduced result. A result resting on a suspected FALSE is CONDITIONAL too.
+  3. Value TRUE: APPLIES. Value FALSE: DOES_NOT_APPLY, reason TEST_NOT_MET, binding_unresolved when bound is UNKNOWN.
+  4. Value UNKNOWN: INSUFFICIENT_FACTS, one question per relevant unknown fact, sorted by fact: MISSING (absent or supplied as UNKNOWN) or NEEDS_STRONGER_EVIDENCE (with the current grade and the highest min_grade among the leaves that downgraded it).
+- D4 Interpretations: each reading's trigger is evaluated with the rule's binding and given a D3 outcome; every per-reading outcome is kept. Readings identical in (outcome, reason, direction) collapse to that outcome with readings_agree True; otherwise the outcome is UNSETTLED.
+- D5 Unless: not applied in C3b; the outcome carries the unless ids as exemptions_pending.
+- S1 (revised) Bound FALSE: evaluate again with every suspected fact removed. Reduced bound still FALSE: DOES_NOT_APPLY, NOT_BOUND. Reduced value UNKNOWN: CONDITIONAL, DOES_NOT_APPLY_IF_CONFIRMED, with the relevant removed suspected facts to confirm. Reduced value FALSE (the trigger fails on its own): DOES_NOT_APPLY, TEST_NOT_MET, binding_unresolved. A suspected fact never yields a definite DOES_NOT_APPLY through the binding.
+- S2 binding_unresolved is True only with DOES_NOT_APPLY / TEST_NOT_MET; a CONDITIONAL never carries it.
+- S3 When readings collapse, the rule's decisive_facts are those decisive in every reading (so removing one still gives INSUFFICIENT_FACTS); facts_to_confirm and questions are the union across readings, and a fact needing stronger evidence takes the highest required grade.
+- S4 A fact counts as unknown for D1 if any leaf reads it as UNKNOWN (including a fact readable in one leaf but below another leaf's min_grade); each hypothetical replaces the fact in every leaf.
+- Overdetermined results have no decisive facts: when two facts each support the result on their own (any(TRUE, TRUE), or a suspected FALSE binding with a verified FALSE trigger), no single removal changes it, so decisive_facts is empty.
+
+Rejected alternatives:
+- Listing every unknown leaf as a question: over-asks facts that cannot change the result.
+- A sixth outcome for weak evidence: breaks the five outcomes.
+- A NOT_BOUND outcome, or omitting unbound rules: a reader cannot see why a regime is silent.
+- CONDITIONAL only on a suspected TRUE: a suspected exculpatory fact would read as a conclusion.
+- Always UNSETTLED when interpretations exist: contradicts the demo and DS3's done-when.
+
+Open items for C3c:
+- Exemptions (strict, flagged).
+- Clocks (display only).
+- Result model by subject and regime.
+- applies_to and law_status filtering.
+- Whether the cap of 12 fits real rules.
