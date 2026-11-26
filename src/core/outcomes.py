@@ -55,6 +55,7 @@ class Reason(StrEnum):
 
     TEST_NOT_MET = "test_not_met"
     NOT_BOUND = "not_bound"
+    EXEMPT = "exempt"  # C3c layer only (core.results); a RuleOutcome rejects it
 
 
 class Direction(StrEnum):
@@ -186,6 +187,8 @@ class RuleOutcome(_Frozen):
     @model_validator(mode="after")
     def _check(self) -> RuleOutcome:
         """Shared constraints, binding_unresolved (S2), readings, evaluation and sorting."""
+        if self.reason == Reason.EXEMPT:
+            raise ValueError("reason EXEMPT exists only at the C3c layer (core.results)")
         _check_details(
             self.outcome,
             self.reason,

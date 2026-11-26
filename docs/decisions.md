@@ -87,3 +87,38 @@ Open items for C3c:
 - Result model by subject and regime.
 - applies_to and law_status filtering.
 - Whether the cap of 12 fits real rules.
+
+## 2026-11-24 (C3c): exemptions, clocks and the result model
+- D6 Exemptions are strict. Start from the C3b RuleOutcome (the base outcome).
+  - Base DOES_NOT_APPLY (NOT_BOUND or TEST_NOT_MET): kept; exemptions are not evaluated.
+  - Otherwise each rule in unless is assessed with the same C3c logic, recursively, so an exemption's own exemptions apply.
+  - An exemption applies only if its final outcome is APPLIES (and D6a holds). If any applies: final outcome DOES_NOT_APPLY, reason EXEMPT, exempted_by = the applying ids (sorted), no direction, no clock.
+  - If none applies: the base outcome, reason and direction stand. An exemption whose final outcome is CONDITIONAL, INSUFFICIENT_FACTS or UNSETTLED is listed as unresolved, carrying its questions and facts_to_confirm. An exemption that is DOES_NOT_APPLY is listed as not applying, with no flag.
+  - An exemption written with interpretations follows the same rule: UNSETTLED means it is not applied, and it is flagged.
+  - A repeated id in the exemption chain raises ResultError (guard for hand-built packs).
+- D6a Pessimistic nesting: an exemption counts as applying only if its final outcome is APPLIES and none of its own exemptions is unresolved. Otherwise it is listed as APPLIES, not applied, unresolved, carrying the open sub-exemptions' questions and facts_to_confirm. Whoever relies on an exemption bears the uncertainty at every level: an open carve-back (a sub-exemption) stops the exemption applying, just as an open exemption does not displace the rule. This also keeps T12 monotone: under D6 alone, removing a carve-back fact could turn INSUFFICIENT_FACTS into DOES_NOT_APPLY / EXEMPT.
+- D6b An UNSETTLED exemption carries the union of its readings' questions and facts_to_confirm, merged as in C3b S3.
+- EXEMPT exists only at the C3c layer: a C3b RuleOutcome rejects it, and assess_rule never produces it.
+- D7 Clocks are display only; no date arithmetic. When the rule has a clock, a ClockNote copies amount, unit and trigger exactly:
+  - status APPLIES when the final outcome is APPLIES;
+  - status IF_CONFIRMED when it is CONDITIONAL with direction APPLIES_IF_CONFIRMED;
+  - status UNDER_READINGS when it is UNSETTLED and at least one reading is APPLIES or CONDITIONAL with APPLIES_IF_CONFIRMED, listing those reading ids;
+  - no clock otherwise.
+  - Every ClockNote carries the fixed text: "Start date not computed; when the clock starts is for counsel."
+- D8 Result model: assess_subject(subject_id, subject_kind, pack, facts, include_proposed=False) -> SubjectResult.
+  - Top-level rules: applies_to equals subject_kind (applies_to is a single node kind), excluding any rule named in any rule's binding or unless (helper rules are evaluated inside the rules that use them).
+  - law_status proposed rules are excluded unless include_proposed is True; the excluded top-level ids are listed in excluded_proposed.
+  - If an included rule relies on a proposed rule through binding or unless, at any depth, while include_proposed is False: ResultError naming both rules. Pending-law dependencies are DS8's job.
+  - Results are grouped by regime: RegimeResult(regime, rules sorted by id, conflict). conflict is reserved for v1 and must be None.
+  - An unknown subject_kind raises ResultError.
+
+Rejected alternatives:
+- Kleene exemptions (rule AND NOT exemption): "applies" would never show while any exemption is open.
+- A per-rule field choosing who bears the uncertainty: right long term, but a schema change, so later.
+- Clocks only on APPLIES: a reporting clock matters most while a fact is being confirmed.
+- Reporting helper rules as their own results: noisy, and the binding question already shows through NOT_BOUND and binding_unresolved.
+
+Open items:
+- A per-rule burden choice for exemptions.
+- Pending-law dependencies (DS8).
+- Fact namespacing when a binding or exemption rule applies to a different node kind than the rule it serves.
