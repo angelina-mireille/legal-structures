@@ -45,6 +45,7 @@ LAST_VERIFIED = date(2026, 11, 1)
 FIXTURE_SOURCES = Path(__file__).resolve().parent / "fixtures" / "rules" / "sources"
 SOURCE_URL = "https://example.org/test-source-1"
 ZERO_HASH = "sha256:" + "0" * 64
+EFFECTIVE_FROM = date(2026, 1, 1)
 NOTE = "Start date not computed; when the clock starts is for counsel."
 
 T = TriValue.TRUE
@@ -134,6 +135,7 @@ def rule_dict(
             "verified_by": "user",
         },
         "clock": clock,
+        "effective": {"from": EFFECTIVE_FROM, "basis": "synthetic test fixture"},
     }
     if interpretations is not None:
         rule["interpretations"] = interpretations
@@ -280,7 +282,7 @@ def test_t1_applying_exemption_exempts(
     pack: RulePack, rule_id: str, facts: dict[str, Fact], base: Outcome
 ) -> None:
     """Strict: an exemption whose final outcome is APPLIES displaces any open base."""
-    result = assess_rule_final(rule_id, pack, facts)
+    result = assess_rule_final(rule_id, pack, facts, as_of=TODAY)
     assert result.base.outcome is base
     assert got(result) == want(
         DOES_NOT_APPLY,
@@ -297,7 +299,7 @@ def test_t1_applying_exemption_exempts(
 
 def test_t2_exemption_does_not_apply(pack: RulePack) -> None:
     """An exemption that is DOES_NOT_APPLY is listed, not flagged; the base stands."""
-    result = assess_rule_final("TEST-R", pack, {A: fact_of(T), B: fact_of(F)})
+    result = assess_rule_final("TEST-R", pack, {A: fact_of(T), B: fact_of(F)}, as_of=TODAY)
     assert got(result) == want(APPLIES, exemptions=(ex("TEST-E1", DOES_NOT_APPLY),))
     assert result.base.outcome is APPLIES
 
@@ -336,7 +338,7 @@ def test_t3_open_exemption_is_flagged(
     pack: RulePack, rule_id: str, facts: dict[str, Fact], exemption: ExemptionResult
 ) -> None:
     """An open exemption does not apply; it is flagged with what would resolve it (D6b)."""
-    result = assess_rule_final(rule_id, pack, facts)
+    result = assess_rule_final(rule_id, pack, facts, as_of=TODAY)
     assert got(result) == want(APPLIES, exemptions=(exemption,))
 
 
@@ -355,17 +357,17 @@ def test_t4_does_not_apply_base_kept(
     pack: RulePack, rule_id: str, facts: dict[str, Fact], reason: Reason
 ) -> None:
     """NOT_BOUND and TEST_NOT_MET stand; no exemption is listed, even one that would apply."""
-    result = assess_rule_final(rule_id, pack, facts)
+    result = assess_rule_final(rule_id, pack, facts, as_of=TODAY)
     assert got(result) == want(DOES_NOT_APPLY, reason=reason)
 
 
 def test_t4_exemptions_not_evaluated() -> None:
     """With a missing exemption rule, a TEST_NOT_MET base still succeeds: it never looks."""
     ghost = hand_built([rule_dict("TEST-R", f_(A), unless=["TEST-GHOST"])])
-    result = assess_rule_final("TEST-R", ghost, {A: fact_of(F)})
+    result = assess_rule_final("TEST-R", ghost, {A: fact_of(F)}, as_of=TODAY)
     assert got(result) == want(DOES_NOT_APPLY, reason=TEST_NOT_MET)
     with pytest.raises(EvaluationError):
-        assess_rule_final("TEST-R", ghost, {A: fact_of(T)})
+        assess_rule_final("TEST-R", ghost, {A: fact_of(T)}, as_of=TODAY)
 
 
 # ---- T5: two exemptions ----------------------------------------------------------------
@@ -373,7 +375,9 @@ def test_t4_exemptions_not_evaluated() -> None:
 
 def test_t5_one_of_two_applies(pack: RulePack) -> None:
     """exempted_by names only the applying exemption; both are listed, sorted."""
-    result = assess_rule_final("TEST-R2", pack, {A: fact_of(T), B: fact_of(T), C: fact_of(F)})
+    result = assess_rule_final(
+        "TEST-R2", pack, {A: fact_of(T), B: fact_of(T), C: fact_of(F)}, as_of=TODAY
+    )
     assert got(result) == want(
         DOES_NOT_APPLY,
         reason=EXEMPT,
@@ -384,7 +388,9 @@ def test_t5_one_of_two_applies(pack: RulePack) -> None:
 
 def test_t5_both_apply(pack: RulePack) -> None:
     """Both applying: both in exempted_by, sorted."""
-    result = assess_rule_final("TEST-R2", pack, {A: fact_of(T), B: fact_of(T), C: fact_of(T)})
+    result = assess_rule_final(
+        "TEST-R2", pack, {A: fact_of(T), B: fact_of(T), C: fact_of(T)}, as_of=TODAY
+    )
     assert got(result) == want(
         DOES_NOT_APPLY,
         reason=EXEMPT,
@@ -401,13 +407,15 @@ def test_t5_both_apply(pack: RulePack) -> None:
 
 def test_t6_exempted_exemption_does_not_apply(pack: RulePack) -> None:
     """The exemption's own exemption applies, so the exemption is DOES_NOT_APPLY."""
-    result = assess_rule_final("TEST-RN", pack, {A: fact_of(T), B: fact_of(T), C: fact_of(T)})
+    result = assess_rule_final(
+        "TEST-RN", pack, {A: fact_of(T), B: fact_of(T), C: fact_of(T)}, as_of=TODAY
+    )
     assert got(result) == want(APPLIES, exemptions=(ex("TEST-EN", DOES_NOT_APPLY),))
 
 
 def test_t6_open_carve_back_insufficient(pack: RulePack) -> None:
     """D6a: an open sub-exemption stops the exemption applying; it carries the question."""
-    result = assess_rule_final("TEST-RN", pack, {A: fact_of(T), B: fact_of(T)})
+    result = assess_rule_final("TEST-RN", pack, {A: fact_of(T), B: fact_of(T)}, as_of=TODAY)
     assert got(result) == want(
         APPLIES,
         exemptions=(ex("TEST-EN", APPLIES, unresolved=True, questions=(missing(C),)),),
@@ -417,7 +425,7 @@ def test_t6_open_carve_back_insufficient(pack: RulePack) -> None:
 def test_t6_open_carve_back_conditional(pack: RulePack) -> None:
     """D6a: a CONDITIONAL sub-exemption passes its facts to confirm up to the exemption."""
     facts = {A: fact_of(T), B: fact_of(T), C: fact_of(T, "suspected")}
-    result = assess_rule_final("TEST-RN", pack, facts)
+    result = assess_rule_final("TEST-RN", pack, facts, as_of=TODAY)
     assert got(result) == want(
         APPLIES, exemptions=(ex("TEST-EN", APPLIES, unresolved=True, confirm=(C,)),)
     )
@@ -425,7 +433,9 @@ def test_t6_open_carve_back_conditional(pack: RulePack) -> None:
 
 def test_t6_carve_back_does_not_apply(pack: RulePack) -> None:
     """The sub-exemption is DOES_NOT_APPLY, so the exemption applies and exempts the rule."""
-    result = assess_rule_final("TEST-RN", pack, {A: fact_of(T), B: fact_of(T), C: fact_of(F)})
+    result = assess_rule_final(
+        "TEST-RN", pack, {A: fact_of(T), B: fact_of(T), C: fact_of(F)}, as_of=TODAY
+    )
     assert got(result) == want(
         DOES_NOT_APPLY,
         reason=EXEMPT,
@@ -436,8 +446,8 @@ def test_t6_carve_back_does_not_apply(pack: RulePack) -> None:
 
 def test_t6_removing_carve_back_fact_stays_insufficient(pack: RulePack) -> None:
     """The plan's counterexample: removing gamma no longer yields DOES_NOT_APPLY (D6a)."""
-    before = assess_rule_final("TEST-RN", pack, {B: fact_of(T), C: fact_of(T)})
-    after = assess_rule_final("TEST-RN", pack, {B: fact_of(T)})
+    before = assess_rule_final("TEST-RN", pack, {B: fact_of(T), C: fact_of(T)}, as_of=TODAY)
+    after = assess_rule_final("TEST-RN", pack, {B: fact_of(T)}, as_of=TODAY)
     assert got(before) == want(INSUFFICIENT, exemptions=(ex("TEST-EN", DOES_NOT_APPLY),))
     assert got(after) == want(
         INSUFFICIENT,
@@ -457,7 +467,7 @@ def test_t7_exemption_cycle_raises() -> None:
         ]
     )
     with pytest.raises(ResultError, match="TEST-CA"):
-        assess_rule_final("TEST-CA", cyclic, {A: fact_of(T), B: fact_of(T)})
+        assess_rule_final("TEST-CA", cyclic, {A: fact_of(T), B: fact_of(T)}, as_of=TODAY)
 
 
 # ---- T8: clocks (D7) ------------------------------------------------------------------
@@ -531,13 +541,13 @@ def test_t8_clocks(
     clock: ClockNote | None,
 ) -> None:
     """Display-only clocks: amount, unit and trigger copied, status from the final outcome."""
-    result = assess_rule_final(rule_id, pack, facts)
+    result = assess_rule_final(rule_id, pack, facts, as_of=TODAY)
     assert (result.outcome, result.direction, result.clock) == (outcome, direction, clock)
 
 
 def test_t8_note_text_exact(pack: RulePack) -> None:
     """The fixed note text, character for character."""
-    result = assess_rule_final("TEST-K", pack, {A: fact_of(T)})
+    result = assess_rule_final("TEST-K", pack, {A: fact_of(T)}, as_of=TODAY)
     assert result.clock is not None
     assert result.clock.note == "Start date not computed; when the clock starts is for counsel."
     assert (result.clock.amount, result.clock.unit, result.clock.trigger) == (
@@ -578,7 +588,7 @@ def rule_ids(result: SubjectResult) -> list[list[str]]:
 
 def test_t9_model_subject(filter_pack: RulePack) -> None:
     """applies_to mismatches and helpers are skipped; a proposed rule is excluded and listed."""
-    result = assess_subject("test-subject-1", "model", filter_pack, FILTER_FACTS)
+    result = assess_subject("test-subject-1", "model", filter_pack, FILTER_FACTS, as_of=TODAY)
     assert rule_ids(result) == [["TEST-M1", "TEST-M3", "TEST-M4"]]
     assert result.excluded_proposed == ("TEST-MP",)
     assert [r.outcome for r in result.regimes[0].rules] == [APPLIES, APPLIES, APPLIES]
@@ -587,7 +597,7 @@ def test_t9_model_subject(filter_pack: RulePack) -> None:
 
 def test_t9_entity_subject(filter_pack: RulePack) -> None:
     """The other node kind sees only its own rules and its own proposed rule."""
-    result = assess_subject("test-subject-2", "entity", filter_pack, FILTER_FACTS)
+    result = assess_subject("test-subject-2", "entity", filter_pack, FILTER_FACTS, as_of=TODAY)
     assert rule_ids(result) == [["TEST-M2"]]
     assert result.excluded_proposed == ("TEST-EP",)
 
@@ -595,7 +605,12 @@ def test_t9_entity_subject(filter_pack: RulePack) -> None:
 def test_t9_include_proposed(filter_pack: RulePack) -> None:
     """include_proposed=True reports the proposed rule and lists nothing as excluded."""
     result = assess_subject(
-        "test-subject-1", "model", filter_pack, FILTER_FACTS, include_proposed=True
+        "test-subject-1",
+        "model",
+        filter_pack,
+        FILTER_FACTS,
+        include_proposed=True,
+        as_of=TODAY,
     )
     assert rule_ids(result) == [["TEST-M1", "TEST-M3", "TEST-M4", "TEST-MP"]]
     assert result.excluded_proposed == ()
@@ -623,10 +638,15 @@ def test_t9_proposed_dependency_raises(tmp_path: Path, case: str) -> None:
     """An included rule relying on a proposed rule raises, naming both; allowed if included."""
     dep_pack = write_pack(tmp_path, DEPENDENCY_CASES[case])
     with pytest.raises(ResultError, match="TEST-D1") as caught:
-        assess_subject("test-subject-1", "model", dep_pack, FILTER_FACTS)
+        assess_subject("test-subject-1", "model", dep_pack, FILTER_FACTS, as_of=TODAY)
     assert "TEST-DP" in str(caught.value)
     result = assess_subject(
-        "test-subject-1", "model", dep_pack, FILTER_FACTS, include_proposed=True
+        "test-subject-1",
+        "model",
+        dep_pack,
+        FILTER_FACTS,
+        include_proposed=True,
+        as_of=TODAY,
     )
     assert rule_ids(result) == [["TEST-D1"]]
     assert result.excluded_proposed == ()
@@ -645,7 +665,7 @@ def test_t10_two_regimes(tmp_path: Path) -> None:
             rule_dict("TEST-G2", f_(A)),
         ],
     )
-    result = assess_subject("test-subject-1", "model", regime_pack, {A: fact_of(T)})
+    result = assess_subject("test-subject-1", "model", regime_pack, {A: fact_of(T)}, as_of=TODAY)
     assert [r.regime for r in result.regimes] == ["TEST", "TEST-B"]
     assert rule_ids(result) == [["TEST-G2", "TEST-G3"], ["TEST-G1"]]
     assert [r.conflict for r in result.regimes] == [None, None]
@@ -670,7 +690,7 @@ SUBJECTS = {
 @pytest.mark.parametrize("name", list(SUBJECTS))
 def test_t11_round_trip(pack: RulePack, name: str) -> None:
     """SubjectResult survives model_dump_json / model_validate_json unchanged."""
-    result = assess_subject(f"test-subject-{name}", "model", pack, SUBJECTS[name])
+    result = assess_subject(f"test-subject-{name}", "model", pack, SUBJECTS[name], as_of=TODAY)
     assert SubjectResult.model_validate_json(result.model_dump_json()) == result
 
 
@@ -679,7 +699,7 @@ def test_t11_subjects_cover_features(pack: RulePack) -> None:
     by_id = {
         name: {
             r.rule_id: r
-            for g in assess_subject(name, "model", pack, facts).regimes
+            for g in assess_subject(name, "model", pack, facts, as_of=TODAY).regimes
             for r in g.rules
         }
         for name, facts in SUBJECTS.items()
@@ -782,11 +802,11 @@ def test_t12_weakening_never_increases_certainty(q_pack: RulePack, rule_id: str)
     """Metamorphic: one grade step down, or removal, never makes a final outcome more certain."""
     checked = 0
     for facts in assignments():
-        before = assess_rule_final(rule_id, q_pack, facts).outcome
+        before = assess_rule_final(rule_id, q_pack, facts, as_of=TODAY).outcome
         if before is UNSETTLED:
             continue
         for label, changed in weakened(facts):
-            after = assess_rule_final(rule_id, q_pack, changed).outcome
+            after = assess_rule_final(rule_id, q_pack, changed, as_of=TODAY).outcome
             if after is UNSETTLED:
                 continue
             assert CERTAINTY[after] <= CERTAINTY[before], (rule_id, facts, label)
@@ -800,7 +820,7 @@ def test_t12_set_exercises_exemptions(q_pack: RulePack) -> None:
     flagged = 0
     for rule_id in Q_TOP:
         for facts in assignments():
-            result = assess_rule_final(rule_id, q_pack, facts)
+            result = assess_rule_final(rule_id, q_pack, facts, as_of=TODAY)
             reasons.add(result.reason)
             flagged += sum(1 for e in result.exemptions if e.unresolved)
     assert EXEMPT in reasons
@@ -820,7 +840,7 @@ def test_t13_assess_rule_never_exempt(q_pack: RulePack, rule_id: str) -> None:
 def test_t14_unknown_subject_kind(pack: RulePack) -> None:
     """A subject kind that is not a node kind raises ResultError."""
     with pytest.raises(ResultError, match="test_kind"):
-        assess_subject("test-subject-1", "test_kind", pack, {})
+        assess_subject("test-subject-1", "test_kind", pack, {}, as_of=TODAY)
 
 
 # ---- T15: determinism and purity --------------------------------------------------------
@@ -831,8 +851,8 @@ def test_t15_pure_and_deterministic(pack: RulePack) -> None:
     facts = {A: fact_of(T, "suspected"), B: fact_of(T), D: fact_of(F)}
     before_facts = copy.deepcopy(facts)
     before_pack = pack.model_dump()
-    first = assess_subject("test-subject-1", "model", pack, facts)
-    second = assess_subject("test-subject-1", "model", pack, facts)
+    first = assess_subject("test-subject-1", "model", pack, facts, as_of=TODAY)
+    second = assess_subject("test-subject-1", "model", pack, facts, as_of=TODAY)
     assert first == second
     assert facts == before_facts
     assert pack.model_dump() == before_pack
@@ -941,7 +961,7 @@ def rebuilt(result: RuleResult, changes: dict[str, Any]) -> RuleResult:
 
 def test_rule_result_rebuild_accepts_unchanged(pack: RulePack) -> None:
     """Control: rebuilding a real result with no changes is valid."""
-    result = assess_rule_final("TEST-R", pack, {A: fact_of(T), B: fact_of(T)})
+    result = assess_rule_final("TEST-R", pack, {A: fact_of(T), B: fact_of(T)}, as_of=TODAY)
     assert rebuilt(result, {}) == result
 
 
@@ -1002,7 +1022,7 @@ def test_rule_result_rejects(
     pack: RulePack, rule_id: str, facts: dict[str, Fact], changes: dict[str, Any]
 ) -> None:
     """RuleResult refuses field combinations that D6, D6a and D7 rule out."""
-    result = assess_rule_final(rule_id, pack, facts)
+    result = assess_rule_final(rule_id, pack, facts, as_of=TODAY)
     with pytest.raises(ValidationError):
         rebuilt(result, changes)
 
@@ -1010,7 +1030,7 @@ def test_rule_result_rejects(
 def test_regime_result_rejects_unsorted_rules(tmp_path: Path) -> None:
     """RegimeResult rules are sorted by id."""
     regime_pack = write_pack(tmp_path, [rule_dict("TEST-G1", f_(A)), rule_dict("TEST-G2", f_(A))])
-    result = assess_subject("test-subject-1", "model", regime_pack, {A: fact_of(T)})
+    result = assess_subject("test-subject-1", "model", regime_pack, {A: fact_of(T)}, as_of=TODAY)
     g1, g2 = result.regimes[0].rules
     with pytest.raises(ValidationError):
         RegimeResult(regime="TEST", rules=(g2, g1), conflict=None)

@@ -28,3 +28,6 @@ clock:
   amount: 72
   unit: hours
   trigger: "test event occurs"
+effective:
+  from: 2026-01-01
+  basis: "synthetic test fixture"

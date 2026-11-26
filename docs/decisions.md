@@ -122,3 +122,31 @@ Open items:
 - A per-rule burden choice for exemptions.
 - Pending-law dependencies (DS8).
 - Fact namespacing when a binding or exemption rule applies to a different node kind than the rule it serves.
+
+## 2026-11-26 (C3d): effective dates and as-of evaluation
+- D9 Schema: a rule gains effective {from, to, published, basis}. The dates are dates or null, and basis is text or null. In the Python model the field is from_ (alias "from"), because from is a Python keyword. An omitted block counts as all null. from is inclusive and to is exclusive. basis says where in the primary text the dates come from. The loader fails closed:
+  - law_status in_force with no from;
+  - from on or after to;
+  - from set without a basis.
+  Proposed rules may leave from empty.
+- D10 as_of is a required, keyword-only argument to assess_subject and assess_rule_final. It has no default, and the code never reads the clock. A datetime raises TypeError, matching load_rule_pack's handling of today. evaluator.py and outcomes.py are unchanged.
+- D11 Filtering happens in results.py:
+  - A top-level rule outside its dates is left out, and its id is listed (sorted) in not_in_effect, beside excluded_proposed. The proposed filter runs first, so a proposed rule outside its dates is listed only in excluded_proposed when include_proposed is False.
+  - A helper rule (binding or unless, at any depth) outside its dates raises ResultError naming both rules. The check is static: it walks every reference, whether or not evaluation reaches it.
+  - assess_rule_final on a rule that is itself outside its dates raises ResultError naming the rule and as_of.
+  - A proposed rule with no from is included when include_proposed is True.
+- D12 Published: a rule in effect at as_of whose published date is after as_of is included, and its RuleResult carries in_force_unpublished = True. Otherwise the flag is False, including when published is null. The outcome is unchanged; the flag is display only.
+  - RuleResult gains law_status, copied from the rule. A validator refuses in_force_unpublished = True unless law_status is in_force, so a proposed rule is never flagged. Reason: renderers and the pending-law toggle need each result to say whether it comes from law in force or proposed law.
+- D13 as_of is recorded on SubjectResult and survives the JSON round trip.
+
+Rejected alternatives:
+- as_of defaulting to today: breaks the fixed-date rule in CLAUDE.md.
+- The date check in the evaluator: C3a D4 keeps outcome labels out of the evaluator.
+- Treating an out-of-date helper as false: a hidden legal assumption.
+- Storing published without using it: loses the "in force but unpublished" signal.
+
+Open items:
+- What an out-of-date binding or exemption should mean, once a real time-limited helper appears.
+- The static helper date check may be stricter than needed once real time-limited helpers exist.
+- Warnings for rules taking effect in the future.
+- How to record a date the primary text leaves unclear (basis says so, and the rule stays unverified).

@@ -1,4 +1,4 @@
-"""Results: exemptions, clock notes and the result model by subject and regime (C3c).
+"""Results: exemptions, clock notes and the result model by subject and regime (C3c, C3d).
 
 Builds on C3b's assess_rule (the base outcome) following the C3c decisions
 (docs/decisions.md):
@@ -9,6 +9,8 @@ Builds on C3b's assess_rule (the base outcome) following the C3c decisions
 - D7 clocks are display only: amount, unit and trigger are copied; no dates.
 - D8 assess_subject picks the top-level rules for a subject kind, filters proposed
   law, and groups results by regime.
+- C3d D10-D13: as_of is required; rules outside their effective dates are left out
+  (top level) or refused (helpers); in-force-but-unpublished rules are flagged.
 
 Pure: no I/O, no logging, no clock, and inputs are never changed. EvaluationError and
 OutcomeError from lower layers propagate unchanged.
@@ -17,8 +19,9 @@ OutcomeError from lower layers propagate unchanged.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from datetime import date, datetime
 from enum import StrEnum
-from typing import Final
+from typing import Final, Literal
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -146,6 +149,7 @@ class RuleResult(_Frozen):
 
     rule_id: str
     regime: str
+    law_status: Literal["in_force", "proposed"]
     outcome: Outcome
     reason: Reason | None
     direction: Direction | None
@@ -153,12 +157,15 @@ class RuleResult(_Frozen):
     exemptions: tuple[ExemptionResult, ...] = ()
     exempted_by: tuple[str, ...] = ()
     clock: ClockNote | None = None
+    in_force_unpublished: bool = False
 
     @model_validator(mode="after")
     def _check(self) -> RuleResult:
-        """Final fields consistent with the base, the exemptions (D6) and the clock (D7)."""
+        """Final fields consistent with the base, exemptions (D6), clock (D7) and D12 flag."""
         if self.base.rule_id != self.rule_id:
             raise ValueError("base is for a different rule")
+        if self.in_force_unpublished and self.law_status != "in_force":
+            raise ValueError("in_force_unpublished can be True only when law_status is in_force")
         _check_sorted("exemptions", (e.rule_id for e in self.exemptions))
         _check_sorted("exempted_by", self.exempted_by)
         if self.base.outcome == Outcome.DOES_NOT_APPLY and self.exemptions:
@@ -205,14 +212,17 @@ class SubjectResult(_Frozen):
 
     subject_id: str
     subject_kind: str
+    as_of: date
     regimes: tuple[RegimeResult, ...]
     excluded_proposed: tuple[str, ...] = ()
+    not_in_effect: tuple[str, ...] = ()
 
     @model_validator(mode="after")
     def _check(self) -> SubjectResult:
-        """Regimes and excluded ids sorted with no repeats."""
+        """Regimes, excluded ids and not-in-effect ids sorted with no repeats."""
         _check_sorted("regimes", (r.regime for r in self.regimes))
         _check_sorted("excluded_proposed", self.excluded_proposed)
+        _check_sorted("not_in_effect", self.not_in_effect)
         return self
 
 
@@ -234,10 +244,14 @@ def _open_details(base: RuleOutcome) -> tuple[tuple[Question, ...], tuple[str, .
 
 
 def _exemption(
-    rule_id: str, pack: RulePack, facts: Mapping[str, Fact], chain: tuple[str, ...]
+    rule_id: str,
+    pack: RulePack,
+    facts: Mapping[str, Fact],
+    chain: tuple[str, ...],
+    as_of: date,
 ) -> ExemptionResult:
     """Assess one exemption with the full C3c logic and decide whether it applies (D6, D6a)."""
-    result = _final(rule_id, pack, facts, chain)
+    result = _final(rule_id, pack, facts, chain, as_of)
     if result.outcome == Outcome.DOES_NOT_APPLY:
         return ExemptionResult(
             rule_id=rule_id, outcome=result.outcome, applied=False, unresolved=False
@@ -285,8 +299,18 @@ def _clock(
     )
 
 
+def _unpublished(rule: Rule, as_of: date) -> bool:
+    """D12: an in-force rule whose published date is after as_of (display only)."""
+    published = rule.effective.published
+    return rule.law_status == "in_force" and published is not None and as_of < published
+
+
 def _final(
-    rule_id: str, pack: RulePack, facts: Mapping[str, Fact], chain: tuple[str, ...]
+    rule_id: str,
+    pack: RulePack,
+    facts: Mapping[str, Fact],
+    chain: tuple[str, ...],
+    as_of: date,
 ) -> RuleResult:
     """D6 over the C3b base, recursively through unless; chain guards against repeats."""
     if rule_id in chain:
@@ -296,7 +320,7 @@ def _final(
     exemptions: tuple[ExemptionResult, ...] = ()
     if base.outcome != Outcome.DOES_NOT_APPLY:
         exemptions = tuple(
-            _exemption(ref, pack, facts, (*chain, rule_id)) for ref in sorted(rule.unless)
+            _exemption(ref, pack, facts, (*chain, rule_id), as_of) for ref in sorted(rule.unless)
         )
     exempted_by = tuple(e.rule_id for e in exemptions if e.applied)
     if exempted_by:
@@ -306,6 +330,7 @@ def _final(
     return RuleResult(
         rule_id=rule_id,
         regime=rule.regime,
+        law_status=rule.law_status,
         outcome=outcome,
         reason=reason,
         direction=direction,
@@ -313,12 +338,60 @@ def _final(
         exemptions=exemptions,
         exempted_by=exempted_by,
         clock=_clock(rule, outcome, direction, base),
+        in_force_unpublished=_unpublished(rule, as_of),
     )
 
 
-def assess_rule_final(rule_id: str, pack: RulePack, facts: Mapping[str, Fact]) -> RuleResult:
-    """The final result of one rule: C3b base, exemptions applied (D6), clock note (D7)."""
-    return _final(rule_id, pack, facts, ())
+# ---- C3d effective dates ----------------------------------------------------------------
+
+
+def _check_as_of(as_of: date) -> None:
+    """Refuse anything but a plain date, as load_rule_pack does for today."""
+    if isinstance(as_of, datetime) or not isinstance(as_of, date):
+        raise TypeError(f"as_of must be a date, not {type(as_of).__name__}")
+
+
+def _in_effect(rule: Rule, as_of: date) -> bool:
+    """Whether as_of falls in the rule's window: from inclusive, to exclusive, null open."""
+    start, end = rule.effective.from_, rule.effective.to
+    return (start is None or start <= as_of) and (end is None or as_of < end)
+
+
+def _check_helpers_in_effect(rule: Rule, by_id: Mapping[str, Rule], as_of: date) -> None:
+    """D11: raise if a rule named through binding or unless, at any depth, is out of dates.
+
+    The check is static: it walks every reference, whether or not evaluation reaches it.
+    """
+    seen: set[str] = set()
+    stack = list(reversed(_references(rule)))
+    while stack:
+        ref = stack.pop()
+        if ref in seen or ref not in by_id:  # unknown ids are refused when evaluated
+            continue
+        seen.add(ref)
+        if not _in_effect(by_id[ref], as_of):
+            raise ResultError(
+                f"{rule.id} relies on {ref} through binding or unless,"
+                f" and {ref} is not in effect on {as_of.isoformat()}"
+            )
+        stack.extend(reversed(_references(by_id[ref])))
+
+
+def assess_rule_final(
+    rule_id: str, pack: RulePack, facts: Mapping[str, Fact], *, as_of: date
+) -> RuleResult:
+    """The final result of one rule as of a date: C3b base, exemptions (D6), clock (D7).
+
+    The rule and every helper it relies on must be in effect on as_of, or ResultError.
+    """
+    _check_as_of(as_of)
+    by_id = {rule.id: rule for rule in pack.rules}
+    rule = by_id.get(rule_id)
+    if rule is not None:  # an unknown id is refused by assess_rule
+        if not _in_effect(rule, as_of):
+            raise ResultError(f"{rule_id} is not in effect on {as_of.isoformat()}")
+        _check_helpers_in_effect(rule, by_id, as_of)
+    return _final(rule_id, pack, facts, (), as_of)
 
 
 # ---- D8 subjects ------------------------------------------------------------------------
@@ -352,14 +425,19 @@ def assess_subject(
     subject_kind: str,
     pack: RulePack,
     facts: Mapping[str, Fact],
+    *,
+    as_of: date,
     include_proposed: bool = False,
 ) -> SubjectResult:
-    """Every top-level rule for this subject kind, assessed and grouped by regime (D8).
+    """Every top-level rule for this subject kind, as of a date, grouped by regime (D8).
 
     Top-level rules have applies_to equal to subject_kind and are not named in any
     rule's binding or unless. Proposed rules are left out (and listed) unless
     include_proposed is True; an included rule relying on a proposed one raises.
+    Of the rest, rules outside their effective dates on as_of are left out and listed
+    in not_in_effect (D11); a helper outside its dates raises.
     """
+    _check_as_of(as_of)
     if subject_kind not in NODE_KINDS:
         raise ResultError(
             f"unknown subject kind {subject_kind!r}; expected one of {', '.join(NODE_KINDS)}"
@@ -370,12 +448,14 @@ def assess_subject(
         (r for r in pack.rules if r.applies_to == subject_kind and r.id not in helpers),
         key=lambda r: r.id,
     )
-    included = [r for r in candidates if include_proposed or r.law_status != "proposed"]
-    excluded = tuple(r.id for r in candidates if r not in included)
+    allowed = [r for r in candidates if include_proposed or r.law_status != "proposed"]
+    excluded = tuple(r.id for r in candidates if r not in allowed)
+    included = [r for r in allowed if _in_effect(r, as_of)]
+    not_in_effect = tuple(r.id for r in allowed if r not in included)
     if not include_proposed:
         for rule in included:
             _check_no_proposed(rule, by_id)
-    results = [assess_rule_final(rule.id, pack, facts) for rule in included]
+    results = [assess_rule_final(rule.id, pack, facts, as_of=as_of) for rule in included]
     regimes = tuple(
         RegimeResult(regime=regime, rules=tuple(r for r in results if r.regime == regime))
         for regime in sorted({r.regime for r in results})
@@ -383,6 +463,8 @@ def assess_subject(
     return SubjectResult(
         subject_id=subject_id,
         subject_kind=subject_kind,
+        as_of=as_of,
         regimes=regimes,
         excluded_proposed=excluded,
+        not_in_effect=not_in_effect,
     )

@@ -45,6 +45,7 @@ LAST_VERIFIED = date(2026, 11, 1)
 FIXTURE_SOURCES = Path(__file__).resolve().parent / "fixtures" / "rules" / "sources"
 SOURCE_URL = "https://example.org/test-source-1"
 ZERO_HASH = "sha256:" + "0" * 64
+EFFECTIVE_FROM = date(2026, 1, 1)
 
 T = TriValue.TRUE
 F = TriValue.FALSE
@@ -125,6 +126,7 @@ def rule_dict(
             "verified_by": "user",
         },
         "clock": None,
+        "effective": {"from": EFFECTIVE_FROM, "basis": "synthetic test fixture"},
     }
     if interpretations is not None:
         rule["interpretations"] = interpretations

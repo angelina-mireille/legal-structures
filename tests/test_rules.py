@@ -22,6 +22,7 @@ FIXTURE_PACK = FIXTURES / "pack"
 FIXTURE_SOURCES = FIXTURES / "sources"
 SOURCE_URL = "https://example.org/test-source-1"
 ZERO_HASH = "sha256:" + "0" * 64
+EFFECTIVE_FROM = date(2026, 1, 1)
 
 
 def make_rule(**overrides: Any) -> dict[str, Any]:
@@ -49,6 +50,7 @@ def make_rule(**overrides: Any) -> dict[str, Any]:
             "verified_by": "user",
         },
         "clock": None,
+        "effective": {"from": EFFECTIVE_FROM, "basis": "synthetic test fixture"},
     }
     rule.update(overrides)
     return rule

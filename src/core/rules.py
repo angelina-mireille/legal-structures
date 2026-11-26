@@ -186,6 +186,32 @@ class Clock(_Frozen):
     trigger: NonEmptyText
 
 
+class Effective(_Frozen):
+    """When a rule is law: from (inclusive) to to (exclusive), published, and basis.
+
+    "from" is a Python keyword, so the field is from_. basis says where in the primary
+    text the dates come from. An omitted block means every field is null.
+    """
+
+    from_: date | None = Field(default=None, alias="from")
+    to: date | None = None
+    published: date | None = None
+    basis: NonEmptyText | None = None
+
+
+def _effective_problems(law_status: str, effective: Effective) -> list[str]:
+    """D9: in_force needs from; from must be before to; from needs a basis."""
+    problems: list[str] = []
+    start = effective.from_
+    if law_status == "in_force" and start is None:
+        problems.append("in_force rule needs effective.from")
+    if start is not None and effective.to is not None and start >= effective.to:
+        problems.append("effective.from must be before effective.to")
+    if start is not None and effective.basis is None:
+        problems.append("effective.from needs effective.basis")
+    return problems
+
+
 class Rule(_Frozen):
     """One rule file."""
 
@@ -203,13 +229,14 @@ class Rule(_Frozen):
     citation: Citation
     verification: Verification
     clock: Clock | None
+    effective: Effective = Effective()
 
     @model_validator(mode="after")
     def _check_rule(self) -> Rule:
-        """Exactly one of trigger or interpretations; unique interpretation ids; depth limit."""
+        """One of trigger or interpretations; unique ids; depth limit; effective dates (D9)."""
         if (self.trigger is None) == (self.interpretations is None):
             raise ValueError("rule needs exactly one of trigger or interpretations")
-        problems: list[str] = []
+        problems: list[str] = _effective_problems(self.law_status, self.effective)
         if self.trigger is not None:
             problems += _depth_problem("trigger", self.trigger)
         seen: set[str] = set()

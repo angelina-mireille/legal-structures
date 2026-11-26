@@ -132,6 +132,67 @@
       "title": "Clock",
       "type": "object"
     },
+    "Effective": {
+      "additionalProperties": false,
+      "description": "When a rule is law: from (inclusive) to to (exclusive), published, and basis.\n\n\"from\" is a Python keyword, so the field is from_. basis says where in the primary\ntext the dates come from. An omitted block means every field is null.",
+      "properties": {
+        "basis": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Basis"
+        },
+        "from": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "From"
+        },
+        "published": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Published"
+        },
+        "to": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "To"
+        }
+      },
+      "title": "Effective",
+      "type": "object"
+    },
     "FactExpr": {
       "additionalProperties": false,
       "description": "A leaf naming a fact, optionally with the weakest evidence grade that counts.",
@@ -310,6 +371,15 @@
       "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
       "title": "Effect",
       "type": "string"
+    },
+    "effective": {
+      "$ref": "#/$defs/Effective",
+      "default": {
+        "basis": null,
+        "from": null,
+        "published": null,
+        "to": null
+      }
     },
     "id": {
       "pattern": "^[A-Z][A-Z0-9-]{2,63}$",
