@@ -150,3 +150,47 @@ Open items:
 - The static helper date check may be stricter than needed once real time-limited helpers exist.
 - Warnings for rules taking effect in the future.
 - How to record a date the primary text leaves unclear (basis says so, and the rule stays unverified).
+
+## 2026-11-26 (C4): diff engine and divergence table
+- D14 What is compared: diff_subjects(subject_id, subject_kind, pack, facts_before, facts_after, *, as_of_before, as_of_after, include_proposed=False) -> SubjectDiff in src/core/diff.py.
+  - It calls assess_subject once per side, with the same pack, subject and include_proposed, so a result can never be paired with the wrong facts.
+  - as_of_before and as_of_after are both required and keyword-only, with no default; the code never reads the clock. A datetime raises TypeError, as in assess_subject.
+  - SubjectDiff carries both SubjectResults and the fields below.
+  - Comparing two packs is out of scope (DS8).
+- D15 Flips and detail changes, for a rule assessed on both sides:
+  - flip: the final (outcome, reason, direction) on RuleResult differs (the key C3b uses to collapse readings);
+  - detail change: no flip, but at least one of these differs: base (the base outcome, reason and direction), base.binding_unresolved, base.decisive_facts, base.facts_to_confirm, base.questions, readings (each interpretation's id, outcome, reason, direction), exemptions (each exemption's rule_id, outcome, applied, unresolved, questions, facts_to_confirm), exempted_by, clock (status, readings), in_force_unpublished;
+  - otherwise unchanged.
+  - "base" was added when the plan was approved. Reason: under an exemption that applies on both sides, the underlying rule can change while every other listed field stays the same, and that change matters if the exemption later falls away.
+  - An exemption's questions and facts_to_confirm were added to "exemptions" before commit. Reason: otherwise a fact that changes only an open exemption's questions puts the rule in unchanged_despite_changes, which reads as "this change did not matter".
+  - Every changed rule, flip or detail, lists the names of the detail fields that differ (sorted), not their values; the values are in the two results the diff carries.
+  - A rule assessed on one side only goes in entered_effect (not in effect before, assessed after) or left_effect (the reverse), sorted. Nothing else is said about it.
+- D16 Changed facts:
+  - A fact has changed when its (value, grade) differs between facts_before and facts_after. An absent fact counts as UNKNOWN with no grade, so absent versus UNKNOWN is not a change. A change of grade alone is a change.
+  - The facts a rule refers to are read statically from the pack, not from the trace: every leaf in its trigger or in each interpretation, in its binding rule at any depth, and in each rule in its unless list at any depth (including their bindings and their own unless rules). Reason: ExemptionResult has no trace, and the trace skips the trigger when the binding is FALSE.
+  - Each changed rule lists every changed fact it refers to, with the before and after Fact (None when absent) and every place the fact appears: FactRead(rule_id = the rule whose expression holds the leaf, via = "self" | "binding" | "unless" (the first step from the changed rule), interpretation_id = the reading id or None).
+  - These are changed facts the rule refers to. The diff makes no claim that any of them caused the change.
+  - unchanged_despite_changes: sorted ids of rules assessed on both sides, unchanged, that refer to at least one changed fact.
+  - Guard: a flip that refers to no changed fact raises DiffError (with one pack this cannot happen, so reaching it means a bug). A detail change that refers to no changed fact raises DiffError unless its only changed field is in_force_unpublished, which can come from the dates alone.
+- D17 Divergence table: divergence_table(result: SubjectResult, pack) -> DivergenceTable in src/core/divergence.py.
+  - One row per assessed rule, sorted by (regime, rule_id): regime, rule_id, effect (looked up in the pack), law_status, outcome, reason, direction, decisive_facts (from base), exempted_by, in_force_unpublished, and for an UNSETTLED rule its readings (id, outcome, reason, direction).
+  - The table also copies subject_id, subject_kind, as_of, not_in_effect and excluded_proposed.
+  - No aggregation across regimes: no "regimes disagree" flag, no grouping by effect, no winner. RegimeResult.conflict stays reserved.
+  - A rule id missing from the pack, or whose regime differs from the pack's, raises DivergenceError.
+  - No rendering of any kind; that is C6 and DS6.
+- D18 Models: every new model is a frozen pydantic model with extra="forbid". Every tuple is sorted, and validators refuse unsorted input, as in results.py. SubjectDiff and DivergenceTable survive a JSON round trip. No I/O, no logging, no clock; inputs are never changed.
+  - Added when the plan was approved: a SubjectDiff validator refuses before and after results whose subject_id or subject_kind differ.
+
+Rejected alternatives:
+- Diffing two SubjectResults supplied by the caller: nothing checks they came from the facts given.
+- Facts read from the trace: exemptions carry no trace; unbound triggers are skipped.
+- Flip by outcome alone: hides EXEMPT versus TEST_NOT_MET.
+- Calling changed facts causes: a counterfactual claim the diff does not test.
+- Grouping rules across regimes by effect: effect labels are free text per rule, so a match would be coincidence.
+
+Open items:
+- A way to mark rules in different regimes as answering the same question (a rule field, decided at DS0 with real text).
+- Diffing two packs (DS8), where the no-changed-fact guard will not hold.
+- Which changed facts were decisive on each side, if C6 needs it.
+- Effect on RuleResult instead of a pack lookup, if C6 needs results that describe themselves.
+- unless on a rule used as a binding rule is never applied (the evaluator follows binding; results.py applies unless only to the assessed rule and its exemptions), and the loader does not refuse it. _fact_reads mirrors this by following binding links only. A loader check is a C2 change; to do before DS3.
