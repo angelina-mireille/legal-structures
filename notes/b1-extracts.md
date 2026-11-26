@@ -526,3 +526,74 @@ Bold and italics are not kept in the text; each entry's Note records them.
 - Text: "Executive agency requests for exceptions must be submitted in writing within 60 days of the issuance of this order and include all necessary information for the issuing official to review and evaluate it, including:"
 - Note: "submitted in writing within 60 days" is bold in the source. The numbered list that follows is not extracted.
 - For: brief sections 2, 7
+
+## DHS Order #2026-01: footnotes, full read, RA2 check
+
+Source: sources/text/fr-2026-21447.pdf (sha256 matches record: yes, checked 9 November 2026).
+Read from a reading copy of sources/text/fr-2026-21447.pdf; the stored original was not opened in an editor.
+The order pages are images with no text layer: every extract below is Live Text OCR, checked against the page image.
+
+### A. Footnotes
+
+#### Footnote 8
+- Location: PDF p. 3 / 91 FR 66348
+- Attached to: "This Exclusion and Removal Order direct Federal civilian agencies[fn 8] to: (1) exclude DeepSeek, DeepSeek-affiliated entities[fn 9], and their products from civilian agency procurements,[fn 10]..." in the section "Scope:"
+- Text: "The Secretary of Homeland Security's authority to issue exclusion and removal orders is applicable to civilian agencies, to the extent not covered by the authority of the Secretary of Defense and Director of National Intelligence, as defined by 41 U.S.C. § 1323(5)(A)(ii) or (iii).
+(ii)The Secretary of Defense, for exclusion and removal orders applicable to the Department of Defense and national security systems other than sensitive compartmented information systems.
+(iii)The Director of National Intelligence, for exclusion and removal orders applicable to the intelligence community and sensitive compartmented information systems, to the extent not covered by clause (ii)."
+- Method: Live Text OCR of a screenshot at 200% zoom, checked against the page image by AM on 9 November 2026
+- Notes: "exclude" is bold when referring to the text to which this footnote is attached. "Order direct" (not "directs"), as printed. The law is cited as "41 U.S.C. § 1323(5)(A)(ii) or (iii)" with no "(c)", a discrepancy with footnotes 11 and 14.
+
+#### Footnote 11
+- Location: PDF p. 3 / 91 FR 66348
+- Attached to: "...and (2) remove products provided by DeepSeek and DeepSeek entities, and third-party products and services developed using DeepSeek implementations, from civilian agency information technology systems.[fn 11]" in the section "Scope:" 
+- Text: "Pursuant to 41 U.S.C. § 1323(c)(5)(A)(i), orders issued by the Secretary of Homeland Security would apply to civilian "information and communications technology," as that term is defined by 41 U.S.C. § 1321(5)."
+- Method: Live Text OCR of a screenshot at 200% zoom, checked against the page image by AM on 9 November 2026
+- Notes: "remove" is bold when referring to the text to which this footnote is attached. Unlike Scope (1), which uses the wording "DeepSeek, DeepSeek-affiliated entities", (2) uses the wording "DeepSeek and DeepSeek entities".
+
+#### Footnote 14
+- Location: PDF p. 4 / 91 FR 66349
+- Attached to: "Remove products provided by DeepSeek, DeepSeek-affiliated entities, and third-party products and services developed using DeepSeek implementations, from civilian agency information technology systems[fn 14] immediately after the issuance of the Order, or seek an Exception, as described below." in the section "Required Actions:" under point "2."
+- Text: "Pursuant to 41 U.S.C. § 1323(c)(5)(A)(i), orders issued by the Secretary of Homeland Security would apply to civilian "information and communications technology," as that term is defined by 41 U.S.C. § 1321(5)."
+- Method: Live Text OCR of a screenshot at 200% zoom, checked against the page image by AM on 9 November 2026
+- Notes: "Remove products provided by" is bold when referring to the text to which this footnote is attached. This footnote is identical to footnote 11.
+
+
+### B. Full read
+
+#### Full read, Order #2026-01 (24 Nov 2026)
+- Read: PDF pp. 2-5 (91 FR 66347-66350), all footnotes (1-14), signature block.
+- Method: Live Text OCR of page screenshots into a search-only text file (not stored), searched for develop, implement, define, means, third; every hit confirmed on the page image at 200% zoom.
+
+- "developed using" appears at:
+  - PDF p. 3 / 91 FR 66348, Scope: "...services developed using DeepSeek implementations..."
+  - PDF p. 4 / 91 FR 66349, Required Action 2: "...services developed using DeepSeek implementations..."
+
+- "implementations" appears at:
+  - the two places above
+  - footnote 10, PDF p. 3 / 91 FR 66348: "third party implementations of DeepSeek"
+  - footnote 13, PDF p. 4 / 91 FR 66349: "third party implementations of DeepSeek"
+
+- Definitions: The order has no definitions section. I found no definition of "developed using" or of "implementations" in the body, the footnotes or the signature block.
+  - The order defines one term itself: footnotes 9 and 12 set out when an individual or business is an "affiliated entity" or "affiliate" of DeepSeek AG (a control test, citing 48 C.F.R. § 2.101).
+  - Two footnote groups adopt meanings from statute by reference, without defining a term: footnote 8 (the scope of the Secretary of Defense's and the DNI's authority, citing 41 U.S.C. § 1323(5)(A)(ii) or (iii) as printed), and footnotes 11 and 14 ("information and communications technology", as defined by 41 U.S.C. § 1321(5)).
+
+- Other forms: "developed" appears only in the two "developed using" passages above; no other form of "develop" appears (developer, development, "developed by").
+- "implementations" appears only as listed above; no other form of "implement" appears (implement, implementation, implementing).
+- "define"/"defined": appears only in footnotes 8, 9, 11, 12 and 14, as described under Definitions above.
+- "means" did not appear
+-  "third" appears at:
+  - Scope: "...entities, and third-party products and services developed using..."
+  - footnote 9: "can control the other; or a third party controls or can control..."
+  - footnote 10: "To include third party implementations of DeepSeek used to provide..."
+  - Required Action 2: "...DeepSeek-affiliated entities, and third-party products and services developed using..."
+  - footnote 12 "...either one controls or can control the other; or a third party controls or can control..."
+  - footnote 13: "To include third party implementations of DeepSeek used to provide..."
+- Differences from notes/b1-extracts.md or the plan doc's section 3: none. This read confirms the plan doc's statement that the order defines neither "developed using" nor "implementations" (previously marked unconfirmed).
+
+### C. RA2 hyphen check
+- Location: PDF p. 4 / 91 FR 66349, Required Action 2
+- Page shows: third-party (hyphen mid-line; "party" ends the line)
+- Zoom: 400%
+- Repo quotes checked (grep): 13 hits in notes/b1-extracts.md, none in docs/downstream-analysis.md. Order Scope (:474) and RA2 (:501) read "third-party", matching the page. Fn 10 (:491) and fn 13 (:518) read "third party", as printed. Fn 9/12 (:482, :509) use "a third party" as a noun. :389 is the FR notice; :72, :116, :138, :257, :264 are FAR text, outside this check.
+- Fix needed: no
