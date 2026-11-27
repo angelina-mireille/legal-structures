@@ -321,3 +321,87 @@ Open items:
 - The meaning of unless on a binding rule, if a real text needs it.
 - Showing a helper rule's clock, if a real exemption deadline appears.
 - Helper rules that apply to a different node kind than the rule they serve (fact namespacing, DS1/DS3).
+
+## 2026-11-27 (DS0): rule list, facts register and threshold representation
+- D29 Threshold representation: precomputed boolean fact (option b), computed by Downstream's graph-to-facts mapping (DS1/DS3/DS4/DS5). No core change.
+  - Each threshold fact's register row records the threshold and the comparison exactly as the source prints them, the source id and pinpoint, and the inputs.
+  - When the mapping is written, a test pins each constant in mapping code to its register row, and the boundary tests sit on the mapping.
+  - Reason: Guidelines para 60 compares two facts (the modification's training compute against a third of the original's), so a comparison leaf against a constant cannot express it. A cited parameter in the rule (option c) would move only the constant while the comparison stays in mapping code, and it still needs a C2 schema change (and exact decimals in YAML).
+  - Revisit if the NDAA s. 1532 text (task C) makes (c) clearly better.
+- D30 Aggregation is a reading. Whether ownership or control counts through chains, and whether a lineage path counts at any depth, is decided for each rule from its text and recorded in the rule list. There is no default. Owns edges hold direct stakes only (C1).
+- D31 applies_to:
+  - The DHS rules apply to software (the order reaches "products and services"). DoW and NDAA rules are expected to be software too; this is confirmed when tasks B and C are read. The EU rule applies to model.
+  - Product X is assessed as two subjects: its software node for the US rules, its model component for the EU rule.
+  - The divergence table lines rules up within one subject kind only; nothing compares across kinds.
+  - A helper rule (binding or exemption) has the same applies_to as the rule it serves.
+- D32 Fact names: "<kind>.<property>", where kind is the assessed subject's node kind (software., model.).
+  - A fact about another node reached from the subject is precomputed into the subject's namespace, with the relation in its name (for example software.provided_by_affiliate_of_named_source).
+  - "context." holds facts about the deployment or contract setting that the graph does not record; the user supplies them.
+  - Names match ^[a-z][a-z0-9_.]{0,127}$.
+- D33 Derived facts fail closed.
+  - A derived path fact (lineage, provider and control) is TRUE when the graph shows a qualifying path, graded at the weakest grade on the strongest such path. It is FALSE only when a graded statement that the relevant record is complete supports it (a separate supplied fact, such as software.lineage_declared_complete), at that statement's grade. Otherwise it is UNKNOWN. A missing edge never makes a fact FALSE.
+  - Threshold facts (D29) are TRUE or FALSE from the compared values, graded at the weakest grade among their inputs, and UNKNOWN when any input is missing. A completeness statement is not needed for a threshold fact.
+  - Completeness statements are inputs to the graph-to-facts mapping, not leaves in any rule's trigger.
+  - Added at review: software.provider_and_control_record_declared_complete, the completeness statement for software.provided_by_named_source and software.provided_by_affiliate_of_named_source. Reason: without it, a provided_by fact can never be FALSE, so US-DHS-2026-01-EXCLUDE could never be DOES_NOT_APPLY.
+- D34 Register layout: docs/facts-register.md has one Markdown table per namespace (software., model., context.), with these columns in this order: Fact | Meaning (plain words) | Node kind | Derived from (graph pattern) or supplied by | Read by (rule ids) | min_grade | Memo label | Status.
+  - The fact name goes in backticks in the first column, one row per fact, so a later test can parse it.
+  - A later code milestone adds a test that every fact a rule reads is registered; DS0 does not.
+- D35 DHS dates, for US-DHS-2026-01-APPLIES, -EXCLUDE and -REMOVE: effective.from 2026-07-24; effective.to null; effective.published 2026-10-20.
+  - Basis text for the three rules: "Order prints 'Original Release Date: July 24, 2026' (PDF p. 2, 91 FR 66347) and no issuance or signature date. Required Actions 1 and 2 take effect 'immediately after' issuance (PDF p. 4, 91 FR 66349). from is the Original Release Date, read as the issuance date: a reading, not stated in the order. published is the Federal Register date (91 FR 66346, 20 Oct 2026)."
+  - Verification status of the three rules: verified. Reason: the test is checked against the order, and the date reading is stated in the basis, which the memo prints.
+  - Changed at review: US-DHS-2026-01-EXCEPTION's dates, basis and verification are pending task G. Reason: the D35 basis covers Required Actions 1 and 2 only, and the Exceptions section has not been read.
+- D36 No clocks in v0.
+  - "Immediately" has no amount or unit, so it goes into effective.basis (D35), not a clock.
+  - The 60-day sentence sets a deadline for agencies' exception requests. It says "days" with no calendar or business qualifier, and it would sit on an exemption rule, where C2b refuses a clock. It is recorded against the exception rule only.
+  - The clock unit display form is deferred until a v0 or later rule has a clock.
+- D37 Unclear dates: recorded in basis text plus verification status. No new field.
+- D38 Unverified rules: the Downstream pack shows them, flagged (core default, D23). None are excluded. Which status a rule sourced from the SAM.gov record gets is decided at the task B review.
+- D39 Regimes without public text: listed in docs/ds0-rules.md with status "text not public" and the secondary source that reports them. They are not rule files: a rule needs a source record and a quote hash. How DS6 lists them is decided at DS6.
+- D40 No cross-regime "same question" marker in v0. Rules sit side by side, and the report makes no claim that two rules answer the same question.
+- D41 DS0 done-when, reworded (v0 table): "Every v0 rule has an ID, regime, test, citation, status and effective date taken from primary text, or is marked 'pending task <X>' with nothing filled from memory or commentary; every fact a listed rule reads is in the facts register."
+- D42 New legal task G (no repo change): copy the order's whole Exceptions section (PDF p. 4, including the numbered list after the 60-day sentence) into the extracts before DS3. The exception rule stays pending task G.
+- Also settled at review:
+  - Regime ids: US-DHS, US-DOW, US-NDAA, EU-AIA.
+  - US-DHS-2026-01-APPLIES has effect WITHIN_APPLIES_TO: it names the order's "Applies To" line and is a helper's label, not a conclusion. US-DHS-2026-01-EXCEPTION's effect is pending task G.
+  - Rule content in docs/ds0-rules.md is copied only from notes/b1-extracts.md; outside quotes, rules and facts say "the named source".
+- This closes the C3a open item on numeric thresholds (D29), the C4 open item on a same-question marker (D40), and the C6 open item on leaving out unverified rules (D38). It also closes the C3d open item on recording a date the text leaves unclear (D37), and, for v0 only, the C3c and C2b open items on helper rules of a different node kind (D31: a helper has the same applies_to as the rule it serves; not enforced in code). The C6 item on human-readable fact labels is partly met: the register records a memo label for each fact, but the memo still prints raw names until a renderer change uses them. The C6 item on clock unit display is deferred (D36).
+
+Rejected alternatives:
+- A comparison leaf with numeric facts: para 60 compares two facts, not a fact against a constant.
+- A cited parameter in the rule: moves only the constant, leaves the comparison in mapping code, and needs a C2 schema change.
+- A notes field on rules for "immediately": effective.basis already carries it, which the memo prints.
+- DHS rules marked unverified because of the date reading: a NOT_VERIFIED warning on every headline DHS rule for a doubt the basis already shows.
+- Hiding unverified rules: a reader could not see that a regime has a rule at all.
+- A cross-regime marker: the report would claim two rules answer the same question.
+
+Open items:
+- Task A: copy 41 U.S.C. § 1323 and § 1321(5); footnote 8 prints "§ 1323(5)(A)(ii) or (iii)" with no "(c)", footnotes 11 and 14 print "§ 1323(c)(5)(A)(i)" (US-DHS-2026-01-APPLIES).
+- Whether the § 1321(5) definition narrows what counts as a product here: open (DS3) (US-DHS-2026-01-APPLIES).
+- "Applies To" says "secure compartmented information systems", footnote 8 says "sensitive compartmented information systems": open (DS3); statute wording copied in task A (US-DHS-2026-01-APPLIES, context.nss_or_sci_system).
+- Exemptions of US-DHS-2026-01-EXCLUDE and US-DHS-2026-01-REMOVE: pending task G.
+- Which name anchors the affiliate test (order body, notice and footnotes 9/12 differ): open (DS2) (US-DHS-2026-01-EXCLUDE).
+- Whether footnote 13 extends the exclusion to third-party implementations, as a second limb or a reading: open (DS3) (US-DHS-2026-01-EXCLUDE, software.is_third_party_implementation_of_named_source_model).
+- How the graph records the capacity to control, apart from controls edges: open (DS1) (US-DHS-2026-01-EXCLUDE, software.provided_by_affiliate_of_named_source).
+- How "provided by" is recorded, with developed_by but no "provides" edge: open (DS1) (US-DHS-2026-01-EXCLUDE, software.provided_by_named_source).
+- Whether Required Action 1's "their products" and Required Action 2's "products provided by" are the same set: open (DS3) (US-DHS-2026-01-EXCLUDE, -REMOVE).
+- Whether affiliate control counts through chains: open (D30, DS3) (software.provided_by_affiliate_of_named_source).
+- The entity limb of the exclusion is not built in v0 (US-DHS-2026-01-EXCLUDE).
+- reading_a and reading_b graph patterns: proposed; settled in DS3 (US-DHS-2026-01-REMOVE).
+- Scope limb 2 and Required Action 2 word the entities differently; both recorded: open (DS3) (US-DHS-2026-01-REMOVE).
+- Lineage path depth: open (D30, DS3) (US-DHS-2026-01-REMOVE and the lineage facts).
+- Which reading, if any, covers uses_code_from and trained_on edges: open (DS3) (US-DHS-2026-01-REMOVE).
+- US-DHS-2026-01-EXCEPTION title, test, readings, binding, exemptions, effect, facts and verification: pending task G.
+- US-DHS-2026-01-EXCEPTION dates and basis: pending task G (the Exceptions section has not been read).
+- Whether exceptions cover Required Action 1, Required Action 2 or both: pending task G.
+- Task G: copy the order's whole Exceptions section into the extracts before DS3 (D42).
+- NDAA s. 1532 rule: pending task C; check P.L. 119-60 s. 6604 while the statute is open; threshold and aggregation from the text (D29, D30).
+- DoW order rule: pending task B; moves to v0.1 if the SAM.gov record does not carry the operative text; its verification status is decided at the task B review (D38).
+- EU-AIA-GPAI-PARA60 verification and effective dates: pending task D (and its four facts).
+- How law_status fits non-binding guidelines: open (DS5) (EU-AIA-GPAI-PARA60).
+- The para 61 figures are "currently" and borrowed from Art. 51(2) AI Act and Section 2.1, not in sources/: open (DS5) (EU-AIA-GPAI-PARA60).
+- Training compute fields in the graph wait for DS1 (model.modification_compute_over_one_third_original, model.modification_compute_over_fallback_threshold).
+- How an entity node is marked as the named source (the graph holds no names): DS1/DS2.
+- DNI order: text not public; secondary source not yet identified: pending task E.
+- Further DHS order reported by CRS IF13336 (27 Oct 2026): text not public: pending task E.
+- How DS6 lists regimes without public text: DS6 (D39).
+- The clock unit display form, once a rule has a clock (D36).
