@@ -38,7 +38,7 @@ from core.outcomes import (
     decisive_facts,
     relevant_facts,
 )
-from core.rules import RulePack, load_rule_pack
+from core.rules import Rule, RulePack, load_rule_pack
 
 TODAY = date(2026, 11, 9)
 LAST_VERIFIED = date(2026, 11, 1)
@@ -253,7 +253,6 @@ def pack(tmp_path_factory: pytest.TempPathFactory) -> RulePack:
             rule_dict("TEST-SPLIT", interpretations=readings(f_(A), f_(B))),
             rule_dict("TEST-SPLIT2", interpretations=readings(all_(f_(A), f_(B)), f_(A))),
             rule_dict("TEST-SPLITB", binding="TEST-BIND", interpretations=readings(f_(A), f_(B))),
-            rule_dict("TEST-OUTER", binding="TEST-SPLIT", interpretations=readings(f_(A), f_(B))),
             rule_dict("TEST-EXEMPT", f_(A), unless=["TEST-X2", "TEST-X1"]),
             rule_dict("TEST-X1", f_(B)),
             rule_dict("TEST-X2", f_(C)),
@@ -720,8 +719,19 @@ def test_e_interpretation_id_on_single_trigger_rule(pack: RulePack) -> None:
         evaluate_rule("TEST-ONE", pack, {}, interpretation_id="reading_a")
 
 
-def test_e_binding_rule_with_interpretations_still_raises(pack: RulePack) -> None:
+def test_e_binding_rule_with_interpretations_still_raises() -> None:
     """A binding rule with interpretations still raises, through assess_rule too."""
+    pack = RulePack.model_construct(
+        rules=(
+            Rule.model_validate(rule_dict("TEST-SPLIT", interpretations=readings(f_(A), f_(B)))),
+            Rule.model_validate(
+                rule_dict(
+                    "TEST-OUTER", binding="TEST-SPLIT", interpretations=readings(f_(A), f_(B))
+                )
+            ),
+        ),
+        warnings=(),
+    )
     with pytest.raises(EvaluationError, match="C3b"):
         evaluate_rule("TEST-OUTER", pack, {}, interpretation_id="reading_a")
     with pytest.raises(EvaluationError, match="C3b"):

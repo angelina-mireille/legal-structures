@@ -604,15 +604,12 @@ def test_t15_rule_with_interpretations(tmp_path: Path) -> None:
         evaluate_rule("TEST-SPLIT", pack, {})
 
 
-def test_t15_binding_rule_with_interpretations(tmp_path: Path) -> None:
-    """A binding rule with interpretations is also left to C3b."""
-    pack = write_pack(
-        tmp_path,
-        [
-            rule_dict("TEST-SPLIT", interpretations=TWO_READINGS),
-            rule_dict("TEST-RULE", trigger={"fact": C}, binding="TEST-SPLIT"),
-        ],
-    )
+def test_t15_binding_rule_with_interpretations() -> None:
+    """The loader refuses a binding rule with interpretations since C2b; a hand-built pack
+    still raises in the evaluator."""
+    split = Rule.model_validate(rule_dict("TEST-SPLIT", interpretations=TWO_READINGS))
+    rule = Rule.model_validate(rule_dict("TEST-RULE", trigger={"fact": C}, binding="TEST-SPLIT"))
+    pack = RulePack.model_construct(rules=(split, rule), warnings=())
     with pytest.raises(EvaluationError, match="C3b"):
         evaluate_rule("TEST-RULE", pack, {})
 

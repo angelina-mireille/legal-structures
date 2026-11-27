@@ -288,3 +288,36 @@ Open items:
 - Decisive facts for an EXEMPT result.
 - Effective dates for proposed rules with a to date but no from date (DS8); today they raise RenderError.
 - Clock units are printed raw (for example calendar_days); a display form is decided at DS0.
+
+## 2026-11-27 (C2b): the loader refuses helper-rule features the engine ignores
+- D26 Scope. A new whole-pack check in rules.py, _helper_feature_problems, is called from _pack_problems after the reference checks. It refuses:
+  - (a) a rule named in any rule's binding that has a non-empty unless. Reason: the evaluator follows binding, and results.py applies unless only to the assessed rule and its exemptions, so the exemption would never be applied.
+  - (b) a rule named in any rule's binding that has interpretations. Reason: the evaluator evaluates a binding rule by its trigger only and raises at evaluation time; this moves the failure to load time.
+  - (c) a rule named in any rule's binding or unless that has a clock. Reason: only top-level rules get a result or a memo section, so a helper rule's clock is silently dropped.
+  - "Named in any rule's binding" covers binding chains at any depth, since every link is named in some rule's binding; the same holds for unless chains. So the check is one flat pass over every reference, with no recursion.
+  - References to unknown rules are skipped here (they are reported elsewhere), as in _reference_cycles.
+  - Added at plan approval: self-references are skipped too, as in _reference_cycles, because "names itself" is already reported.
+  - The evaluator's own refusal of a binding rule with interpretations stays, as a guard for hand-built packs.
+- D27 Refuse, do not support.
+  - Making unless on a binding rule work would need a decision on what an exempted binding condition means. That waits for a real text that needs it.
+  - A helper clock is refused now. Showing one becomes a feature to design when a real exemption deadline appears.
+- D28 Messages. There is one problem per (helper rule, rule that names it, field), and each names both rules, worded exactly:
+  - (a) "{helper}: used as binding by {user}, but has unless; unless on a binding rule is never applied"
+  - (b) "{helper}: used as binding by {user}, but has interpretations; a binding rule is evaluated by its trigger only"
+  - (c) "{helper}: used as {field} by {user}, but has a clock; a helper rule's clock is never shown" (field is "binding" or "unless")
+  - They join the other whole-pack problems in the single sorted RuleError, as before; nothing is short-circuited.
+- Earlier tests changed, approved at plan time, because their packs hit the new check:
+  - test_effective "behind-helper" is now TEST-H-TOP unless [TEST-H-MID], TEST-H-MID binding TEST-H-OLD.
+  - test_evaluator test_t15_binding_rule_with_interpretations and test_outcomes test_e_binding_rule_with_interpretations_still_raises now build hand-built packs.
+  - TEST-OUTER is removed from test_outcomes' shared pack.
+- This closes the C4 open item on unless on a rule used as a binding rule.
+
+Rejected alternatives:
+- Supporting unless on a binding rule: needs a legal-design decision on what an exempted binding condition means.
+- Refusing only unless on binding rules: the other two cases fail the same way, silently or only at evaluation.
+- A warning instead of an error: warnings only show in CI, and a silently dropped exemption or clock changes a result.
+
+Open items:
+- The meaning of unless on a binding rule, if a real text needs it.
+- Showing a helper rule's clock, if a real exemption deadline appears.
+- Helper rules that apply to a different node kind than the rule they serve (fact namespacing, DS1/DS3).

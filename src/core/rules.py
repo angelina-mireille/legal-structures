@@ -413,6 +413,37 @@ def _reference_cycles(by_id: dict[str, Rule]) -> list[str]:
     return problems
 
 
+def _helper_feature_problems(by_id: dict[str, Rule]) -> list[str]:
+    """D26: refuse helper-rule features the engine ignores (unless, interpretations, clock).
+
+    A flat pass over every reference covers chains at any depth, since every link is
+    named in some rule's binding or unless. Self-references and unknown ids are
+    reported elsewhere, so they are skipped here, as in _reference_cycles.
+    """
+    problems: set[str] = set()
+    for user in by_id.values():
+        for field, ref in _references(user):
+            helper = by_id.get(ref)
+            if helper is None or ref == user.id:
+                continue
+            if field == "binding" and helper.unless:
+                problems.add(
+                    f"{ref}: used as binding by {user.id}, but has unless;"
+                    " unless on a binding rule is never applied"
+                )
+            if field == "binding" and helper.interpretations is not None:
+                problems.add(
+                    f"{ref}: used as binding by {user.id}, but has interpretations;"
+                    " a binding rule is evaluated by its trigger only"
+                )
+            if helper.clock is not None:
+                problems.add(
+                    f"{ref}: used as {field} by {user.id}, but has a clock;"
+                    " a helper rule's clock is never shown"
+                )
+    return sorted(problems)
+
+
 def _pack_problems(parsed: list[tuple[str, Rule]], sources_dir: Path, today: date) -> list[str]:
     """Every whole-pack check; each problem starts with the rule id."""
     problems: list[str] = []
@@ -433,7 +464,12 @@ def _pack_problems(parsed: list[tuple[str, Rule]], sources_dir: Path, today: dat
                 f"{rule.id}: last_verified {rule.verification.last_verified}"
                 f" is after today ({today})"
             )
-    return problems + _reference_problems(by_id) + _reference_cycles(by_id)
+    return (
+        problems
+        + _reference_problems(by_id)
+        + _reference_cycles(by_id)
+        + _helper_feature_problems(by_id)
+    )
 
 
 def _warnings(rules: tuple[Rule, ...], today: date) -> tuple[RuleWarning, ...]:

@@ -254,8 +254,8 @@ HELPER_CASES = {
         rule_dict("TEST-H-OLD", f_(B), effective=WINDOW),
     ],
     "behind-helper": [
-        rule_dict("TEST-H-TOP", f_(A), binding="TEST-H-MID"),
-        rule_dict("TEST-H-MID", f_(C), unless=["TEST-H-OLD"]),
+        rule_dict("TEST-H-TOP", f_(A), unless=["TEST-H-MID"]),
+        rule_dict("TEST-H-MID", f_(C), binding="TEST-H-OLD"),
         rule_dict("TEST-H-OLD", f_(B), effective=WINDOW),
     ],
 }
