@@ -1,0 +1,169 @@
+{
+  "format_version": "0.1",
+  "kind": "subject_diff",
+  "disclaimer": "Prototype analysis, not legal advice. Each line follows from the rules and facts supplied; where readings differ, no reading is preferred.",
+  "data": {
+    "before": {
+      "subject_id": "TEST-SUBJ-001",
+      "subject_kind": "model",
+      "as_of": "2026-06-01",
+      "regimes": [
+        {
+          "regime": "TEST",
+          "rules": [
+            {
+              "rule_id": "TEST-SMALL-001",
+              "regime": "TEST",
+              "law_status": "in_force",
+              "outcome": "applies",
+              "reason": null,
+              "direction": null,
+              "base": {
+                "rule_id": "TEST-SMALL-001",
+                "outcome": "applies",
+                "reason": null,
+                "direction": null,
+                "binding_unresolved": false,
+                "decisive_facts": [
+                  "test.s1"
+                ],
+                "facts_to_confirm": [],
+                "questions": [],
+                "interpretations": [],
+                "readings_agree": null,
+                "exemptions_pending": [],
+                "evaluation": {
+                  "rule_id": "TEST-SMALL-001",
+                  "binding": null,
+                  "bound": "true",
+                  "trigger": {
+                    "value": "true",
+                    "leaves": [
+                      {
+                        "fact": "test.s1",
+                        "supplied": {
+                          "value": "true",
+                          "grade": "verified"
+                        },
+                        "min_grade": null,
+                        "value": "true",
+                        "reason": "ok"
+                      }
+                    ]
+                  },
+                  "value": "true"
+                }
+              },
+              "exemptions": [],
+              "exempted_by": [],
+              "clock": null,
+              "in_force_unpublished": false
+            }
+          ],
+          "conflict": null
+        }
+      ],
+      "excluded_proposed": [
+        "TEST-PROP-002"
+      ],
+      "not_in_effect": []
+    },
+    "after": {
+      "subject_id": "TEST-SUBJ-001",
+      "subject_kind": "model",
+      "as_of": "2026-06-01",
+      "regimes": [
+        {
+          "regime": "TEST",
+          "rules": [
+            {
+              "rule_id": "TEST-SMALL-001",
+              "regime": "TEST",
+              "law_status": "in_force",
+              "outcome": "does_not_apply",
+              "reason": "test_not_met",
+              "direction": null,
+              "base": {
+                "rule_id": "TEST-SMALL-001",
+                "outcome": "does_not_apply",
+                "reason": "test_not_met",
+                "direction": null,
+                "binding_unresolved": false,
+                "decisive_facts": [
+                  "test.s1"
+                ],
+                "facts_to_confirm": [],
+                "questions": [],
+                "interpretations": [],
+                "readings_agree": null,
+                "exemptions_pending": [],
+                "evaluation": {
+                  "rule_id": "TEST-SMALL-001",
+                  "binding": null,
+                  "bound": "true",
+                  "trigger": {
+                    "value": "false",
+                    "leaves": [
+                      {
+                        "fact": "test.s1",
+                        "supplied": {
+                          "value": "false",
+                          "grade": "verified"
+                        },
+                        "min_grade": null,
+                        "value": "false",
+                        "reason": "ok"
+                      }
+                    ]
+                  },
+                  "value": "false"
+                }
+              },
+              "exemptions": [],
+              "exempted_by": [],
+              "clock": null,
+              "in_force_unpublished": false
+            }
+          ],
+          "conflict": null
+        }
+      ],
+      "excluded_proposed": [
+        "TEST-PROP-002"
+      ],
+      "not_in_effect": []
+    },
+    "flips": [
+      {
+        "rule_id": "TEST-SMALL-001",
+        "changed_fields": [
+          "base"
+        ],
+        "changed_facts": [
+          {
+            "fact": "test.s1",
+            "before": {
+              "value": "true",
+              "grade": "verified"
+            },
+            "after": {
+              "value": "false",
+              "grade": "verified"
+            },
+            "reads": [
+              {
+                "rule_id": "TEST-SMALL-001",
+                "via": "self",
+                "interpretation_id": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "detail_changes": [],
+    "entered_effect": [],
+    "left_effect": [],
+    "unchanged_despite_changes": []
+  }
+}

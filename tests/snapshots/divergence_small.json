@@ -1,0 +1,31 @@
+{
+  "format_version": "0.1",
+  "kind": "divergence_table",
+  "disclaimer": "Prototype analysis, not legal advice. Each line follows from the rules and facts supplied; where readings differ, no reading is preferred.",
+  "data": {
+    "subject_id": "TEST-SUBJ-001",
+    "subject_kind": "model",
+    "as_of": "2026-06-01",
+    "rows": [
+      {
+        "regime": "TEST",
+        "rule_id": "TEST-SMALL-001",
+        "effect": "TEST_EFFECT",
+        "law_status": "in_force",
+        "outcome": "applies",
+        "reason": null,
+        "direction": null,
+        "decisive_facts": [
+          "test.s1"
+        ],
+        "exempted_by": [],
+        "in_force_unpublished": false,
+        "readings": []
+      }
+    ],
+    "not_in_effect": [],
+    "excluded_proposed": [
+      "TEST-PROP-002"
+    ]
+  }
+}

@@ -194,3 +194,97 @@ Open items:
 - Which changed facts were decisive on each side, if C6 needs it.
 - Effect on RuleResult instead of a pack lookup, if C6 needs results that describe themselves.
 - unless on a rule used as a binding rule is never applied (the evaluator follows binding; results.py applies unless only to the assessed rule and its exemptions), and the loader does not refuse it. _fact_reads mirrors this by following binding links only. A loader check is a C2 change; to do before DS3.
+
+## 2026-11-27 (C6): renderers
+- D19 Scope: two new modules.
+  - src/core/templates.py holds every fixed sentence, as constants.
+  - src/core/render.py holds:
+    - render_memo(result, pack, facts) -> str: the counsel memo in Markdown for one SubjectResult;
+    - render_result_json(result, pack, facts) -> str;
+    - render_json(model) -> str, for SubjectDiff and DivergenceTable.
+  - There is no memo for SubjectDiff or DivergenceTable (DS6, DS8). No I/O, no logging, no clock.
+- D20 Inputs match. render_memo and render_result_json re-run assess_subject(result.subject_id, result.subject_kind, pack, facts, as_of=result.as_of), first with include_proposed False and, if that is not equal to the result, with True. If neither equals the result, they raise RenderError. Reason: a memo must never show facts that did not produce its result. SubjectResult does not record include_proposed, so both settings are tried rather than changing results.py.
+  - Added at plan approval: a ResultError on either re-run counts as "not equal". It occurs when an included rule relies on a proposed rule while include_proposed is False. If neither re-run matches, the RenderError is chained from that ResultError. EvaluationError and OutcomeError propagate unchanged.
+- D21 Memo layout and rule IDs.
+  - Fixed order:
+    - title, disclaimer, no-aggregation line;
+    - one "## Regime <regime>" section per regime, sorted;
+    - in each regime, one "### [<id>] <title>" section per assessed rule, sorted by id;
+    - then "## Not in effect on <as_of>" and "## Proposed law not assessed", each only when non-empty.
+    - One blank line separates blocks.
+  - Within a rule section, in this order, each line only when it applies:
+    1. warnings
+    2. result
+    3. base under exemption
+    4. binding unresolved
+    5. readings
+    6. decisive facts or a no-decisive line (APPLIES, DOES_NOT_APPLY and CONDITIONAL only)
+    7. facts to confirm
+    8. questions
+    9. exemptions with their open points
+    10. clock
+    11. in force but unpublished
+    12. proposed assessed
+    13. source
+    14. effective dates
+  - Every statement line starts with "- [<id>] ": the rule of its section, or in the two list sections, the rule listed. The only lines without it are: the title, the disclaimer, the no-aggregation line, the "## Regime ..." headings, the two list-section headings, and blank lines. Rule headings carry their id.
+  - A fact is shown as "<name> (<VALUE>, <grade>)", as "<name> (UNKNOWN)" when supplied as UNKNOWN, or as "<name> (not supplied)". Values are in capitals (TRUE, FALSE); grades are as stored. Fact names are raw.
+  - Several facts or ids in one line are comma-separated and sorted; ids are each in square brackets.
+  - Added at plan approval:
+    - Full fact form everywhere, including questions and exemption open points (T3, T4 below). Reason: the form already shows the grade, and it tells "UNKNOWN" apart from "not supplied".
+    - Under DOES_NOT_APPLY / EXEMPT, neither decisive line is printed. Reason: base.decisive_facts belong to the base outcome, and nothing computes decisive facts for the final result. With a base of INSUFFICIENT_FACTS, the no-decisive line would be false: removing the exemption's fact would change the result. Questions and facts to confirm are still printed from the base, as the base-under-exemption sentence promises.
+    - NO_DECISIVE is for single-trigger rules only. A rule with agreeing readings and empty decisive_facts gets DECISIVE_NONE_ALL_READINGS (T2).
+    - Under an exemption, open points are listed as questions first (by fact), then facts to confirm (by fact).
+    - A proposed rule with effective.to but no effective.from raises RenderError. Reason: the no-date line would silently drop the to date.
+- D22 Templates. Every sentence is a constant in src/core/templates.py; placeholders are filled with str.format. The memo text is built only from these constants plus rule and fact data.
+  - There is one outcome template (label and sentence) per valid final (outcome, reason, direction), eight in all, looked up by outcome_text. An unknown combination raises RenderError.
+  - The fact and list formats (FACT_STATED, FACT_UNKNOWN, FACT_NOT_SUPPLIED, ID_REF, LIST_SEPARATOR) are constants too. The clock note itself stays results.CLOCK_NOTE.
+  - Changes to the planned wording, made at plan approval or snapshot review:
+    - T1 READING is "- [{id}] Reading {reading_id}: {label}.", with no sentence. Reason: the outcome sentences describe the whole rule, so on a reading line they read as contradictions, and the INSUFFICIENT_FACTS sentence promises a list that is not there.
+    - T2 DECISIVE_NONE_ALL_READINGS is "- [{id}] No single fact is decisive under every reading." Reason: for agreeing readings, decisive_facts is the intersection across readings. Empty does not mean no fact matters: removing one reading's fact can make the rule UNSETTLED.
+    - T3 QUESTION_STRONGER is "- [{id}] Stronger evidence needed for {fact}: this rule requires at least {required}."
+    - T4 EXEMPTION_OPEN_STRONGER is "- [{id}] Open point for exemption [{ex_id}]: stronger evidence needed for {fact}; at least {required} is required." Reason for T3 and T4: the full fact form already shows the current grade.
+    - T5 EXEMPTION_LABEL_CONDITIONAL is "CONDITIONAL". Reason: ExemptionResult records the outcome but not the direction, so an unresolved CONDITIONAL exemption has no full label. INSUFFICIENT_FACTS and UNSETTLED exemptions use their outcome labels, and an unresolved APPLIES exemption (D6a) uses "APPLIES, but an exemption to it is open".
+    - T6 HELPER_WARNING is "- [{id}] Warning {code} on [{helper_id}], which this rule relies on: {message}" (see D23).
+    - CLOCK_UNDER_READINGS is " Shown because this rule's conditions are met, or would be met if confirmed, under these readings: {readings}." It was changed at snapshot review because the earlier wording read badly with one reading.
+  - The template wording in templates.py was reviewed by the user before commit. tests/test_render.py checks every constant word for word and checks that each appears in a memo snapshot.
+- D23 Unverified and stale rules are shown, not hidden. Every pack warning for a rule (STALE, NOT_VERIFIED) is printed at the top of that rule's section, and the rule's verification status is in its source line. Whether a regime pack leaves out unverified rules is a policy for DS0, not core.
+  - Added at plan approval: after the rule's own warnings (sorted by code), a HELPER_WARNING line is printed for every warning on a rule it relies on, sorted by (helper id, code). The rules relied on are:
+    - its binding rule at any depth (binding links only);
+    - each rule in its unless list at any depth, with each one's binding chain.
+    This is the same walk as diff._fact_reads, written locally in render.py. Reason: an EXEMPT result can rest entirely on an exemption rule whose warning would otherwise appear nowhere a reader looks.
+- D24 Snapshots and determinism.
+  - Golden files in tests/snapshots/ (memo_full.md, memo_small.md, result_small.json, diff_small.json, divergence_small.json) are compared byte for byte. There is no new dependency and no auto-update option: a missing or different snapshot fails the test.
+  - Each snapshot was created by running the renderer once from a one-off command that calls write_snapshots in tests/test_render.py (not a test option), then reviewed in full by the user. After the CLOCK_UNDER_READINGS change they were regenerated the same way, and only that line changed.
+  - Output is UTF-8 with "\n" line endings and exactly one trailing newline. There is no timestamp anywhere: the only date is as_of plus the rule dates.
+  - Added at plan approval: a STALE warning line may state the pack's load date (the loader's message, printed as it is). That date is a fixed input to load_rule_pack, not a clock read.
+- D25 JSON.
+  - render_result_json returns json.dumps(indent=2, ensure_ascii=False) plus "\n" of an object with these keys, in this order:
+    - "format_version": "0.1"
+    - "kind": "subject_result"
+    - "disclaimer": the disclaimer text
+    - "facts": one {"fact", "value", "grade"} per supplied fact, sorted by name, with value and grade as stored, e.g. "true", "verified", or "unknown" and null
+    - "rules_in_pack": one {"id", "version", "regime", "law_status", "verification_status", "last_verified", "source_id"} for every rule in the pack, sorted by id
+    - "result": result.model_dump(mode="json")
+    The D20 check applies.
+  - render_json(model) returns the same layout with only format_version, kind ("subject_diff" or "divergence_table"), disclaimer and "data": model.model_dump(mode="json"). Any other type raises RenderError.
+  - The "result" and "data" parts validate back into equal models. The three round-trip assertions use model_validate_json on the re-serialised part, as the C3c and C4 tests do. Reason: Fact.value is strict, so Python-mode model_validate refuses the JSON string "true" for a TriValue. JSON-mode validation accepts it, and that is what reading the file back means.
+
+Rejected alternatives:
+- A memo for the diff in C6: DS8 needs it, not v0.
+- Rendering from a result alone: the memo could not show the facts relied on.
+- Rendering from result and facts with no check: a memo could show facts that did not produce its result.
+- Rule IDs in section headings only: a copied line loses its source, and the done-when is not testable.
+- Templates in YAML: a loader and fail-closed checks for no gain, while the wording is edited through git.
+- Hiding unverified rules in core: a policy for each regime pack, at DS0.
+- A snapshot auto-update option: a changed memo could be accepted without being read.
+
+Open items:
+- Human-readable fact labels (DS0 facts register).
+- Per-reading detail in the memo (decisive facts and questions for each reading); the JSON already carries it.
+- Whether a regime pack leaves out unverified rules (DS0).
+- include_proposed recorded on SubjectResult, if trying both settings in D20 proves awkward.
+- Prose rendering of SubjectDiff (DS8) and DivergenceTable (DS6).
+- Decisive facts for an EXEMPT result.
+- Effective dates for proposed rules with a to date but no from date (DS8); today they raise RenderError.
+- Clock units are printed raw (for example calendar_days); a display form is decided at DS0.
