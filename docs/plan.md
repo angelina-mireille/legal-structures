@@ -1,7 +1,7 @@
 # Plan
 
 ## Revised order (2026-11-08)
-Phase A (done), then Phase C (about 32.5 hours), then Downstream v0 (about 43 hours), then Phases D and E. Phase B is parked. Phase 2 (Perimeter brief) is replaced by cited rule files written during Phase D.
+Phase A (done), then Phase C (about 30 hours), then Downstream v0 (about 43 hours), then Phases D and E. Phase B is parked. Phase 2 (Perimeter brief) is replaced by cited rule files written during Phase D.
 
 ## Phase A: setup (week 1, about 5 hours)
 
@@ -19,7 +19,7 @@ Phase A (done), then Phase C (about 32.5 hours), then Downstream v0 (about 43 ho
 | B3 | Second-reader review and revisions. | 2, plus waiting | The reader marks both readings as fairly put. | Parked: second reader moves to the v1 eval |
 | B4 | Publish as a doc and PDF, with a short post linking it. | 1.5 | Public, dated, and linked from the repo README. Just before publishing, re-check FAR Case 2026-001 (proposed rule, 91 FR 37550, 23 June 2026) and the agency deviations in section 8 rows D11-D12 of the plan doc. | Parked: publication waits for the tool's launch |
 
-## Phase C: shared core (about 32.5 hours; C7a and C7b moved after Downstream v0 and not counted)
+## Phase C: shared core (about 30 hours; C5, C7a and C7b moved after Downstream v0.1 and not counted)
 
 | ID | Milestone | Hours | Done when | Status |
 |---|---|---|---|---|
@@ -31,8 +31,8 @@ Phase A (done), then Phase C (about 32.5 hours), then Downstream v0 (about 43 ho
 | C3c | Exemptions (strict, flagged), clocks (display only), result model by subject and regime with an unused CONFLICT field, applies_to and law_status filtering. | 3 | Each exemption case has a test; the result model round-trips to JSON. | Done (commit ead8dc1) |
 | C3d | Effective dates and as-of evaluation: effective {from, to, published, basis} on rules; as_of filtering in the result layer; rules in force but not yet published are flagged. | 3 | A rule applies only when as_of falls inside its effective window; an in-force rule with no effective.from, or a date with no basis, fails to load; in-force-but-unpublished rules are flagged; every result records as_of. | Done (commit e6a288f) |
 | C4 | Diff engine and divergence table (data only; rendering is C6 and DS6). | 3 | On 10 hand-made pairs, the diff names exactly the changed facts each changed rule refers to, with where each appears. | Done (commit 1938189) |
-| C5 | Hash-chained audit log and verify command. | 2.5 | Editing, deleting or reordering any line is detected. | |
-| C6 | Renderers: JSON and the counsel memo in Markdown, with templated explanations. | 3 | Snapshot tests pass; every memo statement carries a rule ID. | |
+| C5 | Hash-chained audit log and verify command. | 2.5 | Editing, deleting or reordering any line is detected. | Moved after Downstream v0.1, to sit with C7a |
+| C6 | Renderers: JSON and the counsel memo in Markdown, with templated explanations. | 3 | Snapshot tests pass; every memo statement carries a rule ID. | Done (commit c99fe99) |
 | C7a | LLM extraction with a confirm-each-fact loop in the CLI. | 4 | Proposals show source spans; nothing enters the graph without an explicit accept; with no API key the tool still runs on templates. | Moved after Downstream v0 |
 | C7b | Citation validator and prompt-injection suite. | 4 | 20 of 20 invented-citation outputs rejected; 15 injection documents leave extracted facts unchanged and are logged. | Moved after Downstream v0 |
 | C8 | Determinism check and the metamorphic test helper. | 2 | 100 runs are byte-identical; one sample relation uses the helper. | |
@@ -46,7 +46,7 @@ Phase A (done), then Phase C (about 32.5 hours), then Downstream v0 (about 43 ho
 | C3c | Exemptions (strict, flagged), clocks (display only), result model by subject and regime with an unused CONFLICT field, applies_to and law_status filtering (done 25 Nov 2026) | 3 | Each exemption case has a test; the result model round-trips to JSON |
 | C3d | Effective dates and as-of evaluation: effective {from, to, published, basis} on rules; as_of filtering in the result layer; rules in force but not yet published are flagged (done 26 Nov 2026) | 3 | A rule applies only when as_of falls inside its effective window; an in-force rule with no effective.from, or a date with no basis, fails to load; in-force-but-unpublished rules are flagged; every result records as_of |
 | C4 | Diff engine and divergence table (data only; rendering is C6 and DS6) (done 26 Nov 2026) | 3 | On 10 hand-made pairs, the diff names exactly the changed facts each changed rule refers to, with where each appears |
-| C6 | Renderers: JSON and the counsel memo in Markdown, templated | 3 | Snapshot tests pass; every memo statement carries a rule ID |
+| C6 | Renderers: JSON and the counsel memo in Markdown, templated (done 27 Nov 2026) | 3 | Snapshot tests pass; every memo statement carries a rule ID |
 | C2b | Loader check: refuse unless on a rule used as a binding rule. Today it is silently never applied (found in C4). Before DS3 (estimate) | 1 | A pack in which a rule named in any binding has a non-empty unless fails to load, with a RuleError naming both rules |
 | DS0 | Rule list and facts register (no code); before DS3. Decide the threshold representation here (comparison leaf or precomputed fact) | 2 | Every rule has an ID, regime, test, citation, status and effective date (from the primary text) |
 | DS1 | Lineage schema and the Product X example, including a component trained on a DeepSeek model's outputs (distillation row) | 3 | The schema validates Product X; it has no nationality fields |
@@ -57,11 +57,10 @@ Phase A (done), then Phase C (about 32.5 hours), then Downstream v0 (about 43 ho
 | DS6 | Divergence report renderer, including a list of known regimes whose text is not public (e.g. the DNI order) | 3 | Product X's report shows every disagreement with its decisive and changed facts and lists known regimes without public text |
 | DS10a | One-command demo and README thesis: Downstream as the legal layer over AIBOMs and model fingerprints (estimate) | 2 | Product X runs from one command; the README states status, limits and that no eval is published yet |
 
-## Downstream v0.1, shortly after v0, about 19.5 hours
+## Downstream v0.1, shortly after v0, about 17 hours
 
 | ID | Milestone | Hours | Done when |
 |---|---|---|---|
-| C5 | Hash-chained audit log and verify command | 2.5 | Editing, deleting or reordering any line is detected |
 | C8 | Determinism check and the metamorphic test helper | 2 | 100 runs are byte-identical; one sample relation uses the helper |
 | DS7 | Questionnaire pack (templated) | 3 | Each regime lists the facts needed, their current grade, and conditional attestation text marked for counsel |
 | DS8 | Pending-law toggle; showcase bill: No Adversarial AI Act (S.2177 / H.R.4142), status and text checked on congress.gov first | 2 | A proposed rule can be switched on, and the diff shows what flips |
@@ -70,7 +69,7 @@ Phase A (done), then Phase C (about 32.5 hours), then Downstream v0 (about 43 ho
 | DS11 | CycloneDX ML-BOM importer: pedigree.ancestors become derived_from edges at grade declared; nothing else inferred (estimate) | 3 | A sample ML-BOM imports into a valid graph and the report runs on it; unmapped fields are reported, not silently dropped |
 | DoW | DoW order rule, if it slipped from DS4 | 1 | Rule Verified from the SAM.gov text |
 
-After v0.1: C7a, C7b, then Perimeter v1a (Phases D and E).
+After v0.1: C5 (audit log, moved here to sit with C7a's confirm-each-fact loop), C7a, C7b, then Perimeter v1a (Phases D and E).
 
 ## Phase D: Perimeter v1a (after Downstream v0, about 38.5 hours)
 
